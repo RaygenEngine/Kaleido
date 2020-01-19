@@ -2,39 +2,25 @@
 // For editor use only, contains the actual text pieces for the editor help and other stuff.
 
 inline const char* txt_about = R"(
-(outdated and/or imprecise, wait for version v1.0.1)
-License: TBD (v1.0.1)
+MIT License
+
+Copyright (c) 2019-2020 John Moschos, Harry Katagis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 )";
 
 // this text autowraps around 70 chars for optimal reading
 inline const char* txt_help = R"(
-(outdated and/or imprecise, wait for version v1.0.1)
-
-Programming documentation can be found at docs/ in Markdown format or viewed directly on __github. In this window you can get an overview of Kaleido's features, design logic and editor basics.
-
-Kaleido has been primarily designed with the goal of being a sandbox for renderer development. Therefore all the design logic is based on the following basic principles:
-1. All rendering features are opt-in.
-2. ...
-
-The tools provided by the engine for Renderer Designers are:
-1. Extensible automatic asset handling with caching.
-2. Integrated reflection system with a powerful editor.
-3. Hot-swappable sample renderers for comparing and debugging.
-4. ...
-
-
-Editor Help:
 The editor is designed primarily for debugging and advanced users. Multiple properties can be set to "incorrect" values and rarely some may crash your system. You can for example set a negative texture size, or a 128k by 128k one so use responsibly.
-Also note that the editor has not been thoroughly profiled and may induce slight performance penalties while the windows are open and visible. The editor can be toggled at any time using the ` key.
-
+Also note that the editor has not been thoroughly profiled and may introduce slight performance penalties while the windows are open and visible. The editor can be toggled at any time using the ` key.
 
 Scene saving and loading is available and the scene format is in json.
 All the reflected properties of nodes are automatically serialized and restored upon loading. Any asset referenced in the scene file is stored relative to the Kaleido/assets/ folder and the scene will fail to load if it is not found.
 Editing the json files by hand is possible but not recommended.
-
-
-Some help tooltips are available in the editor.
-
 )";
 
 inline const char* help_Outliner = R"(
