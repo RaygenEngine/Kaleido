@@ -60,7 +60,7 @@ Then just build & run. Default assets are included for the preview scene.
 * [tinygltf](https://github.com/syoyo/tinygltf)
 * [nlohmann/json](https://github.com/nlohmann/json)
 * [magic_enum](https://github.com/Neargye/magic_enum)
-* [glad] (https://github.com/Dav1dde/glad)
+* [glad](https://github.com/Dav1dde/glad)
 
 ## Authors
 
