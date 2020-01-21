@@ -36,7 +36,7 @@ It's primary focus is to support the creation of multiple renderers that can be 
 
 ## Requirements
 
-The development is done mainly done on MSVC 19.22. Clang-cl v9 is also regularly tested. 
+The development is done on MSVC 19.22. Clang-cl v9 is also regularly tested. 
 CMake 3.11 is required.
 
 ## Getting started
