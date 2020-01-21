@@ -8,12 +8,13 @@ It's primary focus is to support the creation of multiple renderers that can be 
 ## Features
 
 ### Rendering
-* Hot-swappable renderers of different contexts
-* Sample OpenGL Forward PBR & Deferred PBR renderers
-* Stereo VR Renderer
-* Directional, omni & spot lights with shadow mapping
-* Basic post-process
-* Frustum culling
+
+* Compile time registration of multiple renderers of different rendering contexts (renderer abstraction)
+* Hot-swapping between renderers at runtime
+* Generic GPU asset caching 
+* Sample OpenGL PBR (direct lighting) renderers
+* Runtime shader editing and reloading (OpenGL)
+* Support for rendering optimization techniques (eg. frustum culling)
 
 ### World & Editor
 * Extensible type-system with reflection support for user types
@@ -27,6 +28,11 @@ It's primary focus is to support the creation of multiple renderers that can be 
 * Dynamic loading, unloading & automated caching
 * Extensible asset loaders
 * Support for GLTF, Generic JSON, PNG, JPG, BMP
+
+## WIP: 
+* Vulkan-based sample renderers
+* Optimized context switching and reloading of GPU assets
+* Substructure for VR rendering
 
 ## Screenshots
 
