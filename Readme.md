@@ -7,21 +7,11 @@ It's primary focus is to support the creation of multiple renderers that can be 
 
 ## Features
 
-* Real-time renderer swapping while scenes are updating
-* Sample PBR OpenGL Forward & Deferred renderers
-* Dynamic & multi-threaded asset loading & automated caching
-* Reflection of world entities with support for enums
-* Drag & Drop Scene editor & auto-generated entity editor
-* Generic JSON serialization based on reflection
-
-## Features (Alt)
-
-
 ### Rendering
 * Hot-swappable renderers of different contexts
 * Sample OpenGL Forward PBR & Deferred PBR renderers
 * Stereo VR Renderer
-* Directional, omni & spot lights with shadows
+* Directional, omni & spot lights with shadowmapping
 * Basic post-process
 * Frustum culling
 
@@ -40,16 +30,14 @@ It's primary focus is to support the creation of multiple renderers that can be 
 
 ## Screenshots
 
-
-
+![Kaleido](/assets/engine-data/screenshots/02.png "Kaleido")
 
 ## Requirements
 
-The development is done mostly on MSVC 19.22. Clang-cl v9 is also regularly tested. 
+The development is done mainly done on MSVC 19.22. Clang-cl v9 is also regularly tested. 
 CMake 3.11 is required.
 
 ## Getting started
-[//]: # (TODO: Test --shallow-submodules)
 
 ```
  git clone --recursive --shallow-submodules https://github.com/renoras/kaleido
@@ -59,7 +47,7 @@ CMake 3.11 is required.
  cmake ..
  ```
 If you are using the .sln to build remember to change the startup project to Kaleido.
-Then just build & run. Everything default assets are included for the preview scene.
+Then just build & run. Default assets are included for the preview scene.
 
 ## Dependencies (included as submodules)
 
@@ -70,12 +58,11 @@ Then just build & run. Everything default assets are included for the preview sc
 * [tinygltf](https://github.com/syoyo/tinygltf)
 * [nlohmann/json](https://github.com/nlohmann/json)
 * [magic_enum](https://github.com/Neargye/magic_enum)
-* glad
-* LibOVR
+* [glad] (https://github.com/Dav1dde/glad)
 
 ## Authors
 
-| Info | Role | Focus |
-| ------|-----|-----|
-|**John Moschos**, [Renoras](https://github.com/Renoras)| Co-Founder, Programmer | Graphics & rendering |
-|**Harry Katagis**, [katagis](https://github.com/katagis)| Co-Founder, Programmer | Engine Subsystems & Modules |
+| Info | Role |
+| ------|-----|
+|**John Moschos**, [Renoras](https://github.com/Renoras)| Co-Founder, Programmer |
+|**Vivian Katagi**, [vkatagi](https://github.com/vkatagi)| Co-Founder, Programmer |
