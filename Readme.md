@@ -11,7 +11,7 @@ It's primary focus is to support the creation of multiple renderers that can be 
 * Hot-swappable renderers of different contexts
 * Sample OpenGL Forward PBR & Deferred PBR renderers
 * Stereo VR Renderer
-* Directional, omni & spot lights with shadowmapping
+* Directional, omni & spot lights with shadow mapping
 * Basic post-process
 * Frustum culling
 
@@ -30,7 +30,9 @@ It's primary focus is to support the creation of multiple renderers that can be 
 
 ## Screenshots
 
-![Kaleido](/assets/engine-data/screenshots/02.png "Kaleido")
+![Kaleido](/assets/engine-data/screenshots/01.png "Screenshot 1")
+
+![Kaleido](/assets/engine-data/screenshots/02.png "Screenshot 2")
 
 ## Requirements
 
