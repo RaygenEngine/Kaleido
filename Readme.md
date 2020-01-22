@@ -48,7 +48,7 @@ CMake 3.11 is required.
 ## Getting started
 
 ```
- git clone --recursive --shallow-submodules https://github.com/renoras/kaleido
+ git clone --recursive https://github.com/renoras/kaleido
  cd kaleido
  mkdir build
  cd build
