@@ -16,51 +16,6 @@ struct SwapChainSupportDetails {
 	std::vector<vk::PresentModeKHR> presentModes;
 };
 
-vk::UniqueImageView createImageView(
-	vlkn::Device* dev, vk::Image image, vk::Format format, vk::ImageAspectFlags aspectFlags)
-{
-	vk::ImageViewCreateInfo viewInfo{};
-	viewInfo.setImage(image).setViewType(vk::ImageViewType::e2D).setFormat(format);
-	viewInfo.subresourceRange.setAspectMask(aspectFlags)
-		.setBaseMipLevel(0)
-		.setLevelCount(1)
-		.setBaseArrayLayer(0)
-		.setLayerCount(1);
-
-	return dev->createImageViewUnique(viewInfo);
-}
-
-void createImage(vlkn::Device* device, uint32 width, uint32 height, vk::Format format, vk::ImageTiling tiling,
-	vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::UniqueImage& image,
-	vk::UniqueDeviceMemory& imageMemory)
-{
-	auto pd = device->GetPhysicalDevice();
-
-	vk::ImageCreateInfo imageInfo{};
-	imageInfo.setImageType(vk::ImageType::e2D)
-		.setExtent({ width, height, 1 })
-		.setMipLevels(1)
-		.setArrayLayers(1)
-		.setFormat(format)
-		.setTiling(tiling)
-		.setInitialLayout(vk::ImageLayout::eUndefined)
-		.setUsage(usage)
-		.setSamples(vk::SampleCountFlagBits::e1)
-		.setSharingMode(vk::SharingMode::eExclusive);
-
-	image = device->createImageUnique(imageInfo);
-
-	vk::MemoryRequirements memRequirements = device->getImageMemoryRequirements(image.get());
-
-	vk::MemoryAllocateInfo allocInfo{};
-	allocInfo.setAllocationSize(memRequirements.size);
-	allocInfo.setMemoryTypeIndex(pd->FindMemoryType(memRequirements.memoryTypeBits, properties));
-
-	imageMemory = device->allocateMemoryUnique(allocInfo);
-
-	device->bindImageMemory(image.get(), imageMemory.get(), 0);
-}
-
 vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
 {
 	// search for req format
@@ -238,13 +193,28 @@ Swapchain::Swapchain(Device* device, vk::SurfaceKHR surface)
 
 	m_renderPass = device->createRenderPassUnique(renderPassInfo);
 
-	// framebuffers
+	// depth buffer
 	vk::Format depthFormat = physicalDevice->FindDepthFormat();
-	createImage(m_assocDevice, extent.width, extent.height, depthFormat, vk::ImageTiling::eOptimal,
+	m_assocDevice->CreateImage(extent.width, extent.height, depthFormat, vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal, depthImage,
 		depthImageMemory);
-	depthImageView = createImageView(m_assocDevice, depthImage.get(), depthFormat, vk::ImageAspectFlagBits::eDepth);
 
+	// We don't need to explicitly transition the layout of the image to a depth attachment because we'll take care of
+	// this in the render pass.
+	device->TransitionImageLayout(
+		depthImage.get(), depthFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+	vk::ImageViewCreateInfo viewInfo{};
+	viewInfo.setImage(depthImage.get()).setViewType(vk::ImageViewType::e2D).setFormat(depthFormat);
+	viewInfo.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth)
+		.setBaseMipLevel(0)
+		.setLevelCount(1)
+		.setBaseArrayLayer(0)
+		.setLayerCount(1);
+
+	depthImageView = m_assocDevice->createImageViewUnique(viewInfo);
+
+	// framebuffers
 	for (auto& imgv : m_imageViews) {
 		std::array<vk::ImageView, 2> attachments = { imgv.get(), depthImageView.get() };
 		vk::FramebufferCreateInfo createInfo{};

@@ -7,12 +7,12 @@
 
 namespace vlkn {
 
-class Image {
+class Texture {
 
+	vk::UniqueImage m_handle;
+	vk::UniqueDeviceMemory m_memory;
 
 public:
-	Model(Device* device, PodHandle<ModelPod> handle);
-
-	const std::vector<GeometryGroup>& GetGeometryGroups() const { return m_geometryGroups; }
+	Texture(Device* device, PodHandle<TexturePod> handle);
 };
 } // namespace vlkn
