@@ -55,7 +55,7 @@ set(SOURCE_FILES
 	renderer/renderers/vulkan/Swapchain.cpp
 	renderer/renderers/vulkan/GraphicsPipeline.cpp
 	renderer/renderers/vulkan/Model.cpp
-	renderer/renderers/vulkan/Image.cpp
+	renderer/renderers/vulkan/Texture.cpp
 	renderer/renderers/vulkan/Descriptors.cpp
 
 
@@ -195,7 +195,7 @@ set(HEADER_FILES
 	renderer/renderers/vulkan/Swapchain.h
 	renderer/renderers/vulkan/GraphicsPipeline.h
 	renderer/renderers/vulkan/Model.h
-	renderer/renderers/vulkan/Image.h
+	renderer/renderers/vulkan/Texture.h
 	renderer/renderers/vulkan/Descriptors.h
 
 	system/Engine.h

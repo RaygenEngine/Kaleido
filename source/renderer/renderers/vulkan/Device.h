@@ -2,6 +2,7 @@
 
 #include "renderer/renderers/vulkan/PhysicalDevice.h"
 #include "renderer/renderers/vulkan/Descriptors.h"
+#include "renderer/renderers/vulkan/Texture.h"
 #include <vulkan/vulkan.hpp>
 
 namespace vlkn {
@@ -21,6 +22,7 @@ class Device : public vk::Device {
 	vk::UniqueCommandPool m_transferCommandPool;
 
 	vk::UniqueCommandBuffer m_transferCommandBuffer;
+	vk::UniqueCommandBuffer m_graphicsCommandBuffer;
 
 public:
 	Device(vk::Device handle, PhysicalDevice* physicalDevice);
@@ -32,6 +34,7 @@ public:
 	vk::CommandPool GetTransferCommandPool() const { return m_transferCommandPool.get(); }
 
 	vk::UniqueShaderModule CreateShaderModule(const std::string& binPath);
+	std::unique_ptr<Texture> CreateTexture(const std::string& textPath);
 
 	std::unique_ptr<Swapchain> RequestDeviceSwapchainOnSurface(vk::SurfaceKHR surface);
 	std::unique_ptr<GraphicsPipeline> RequestDeviceGraphicsPipeline(Swapchain* swapchain);
@@ -41,6 +44,14 @@ public:
 		vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& memory);
 	void CopyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size);
 
+	void CreateImage(uint32 width, uint32 height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage,
+		vk::MemoryPropertyFlags properties, vk::UniqueImage& image, vk::UniqueDeviceMemory& memory);
+
+	void CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32 width, uint32 height);
+
+	void TransitionImageLayout(
+		vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+
 	vk::Result Present(const vk::PresentInfoKHR& info);
 	vk::Result SubmitGraphics(uint32 submitCount, vk::SubmitInfo* pSubmits, vk::Fence fence);
 
@@ -48,8 +59,5 @@ public:
 	vk::Queue GetTransferQueue() const { return m_transferQueue; }
 
 	vk::CommandBuffer GetTransferCommandBuffer() const { return m_transferCommandBuffer.get(); }
-
-
-	// void CreateImage(const std::string& textPath);
 };
 } // namespace vlkn
