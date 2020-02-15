@@ -34,7 +34,7 @@ public:
 	vk::CommandPool GetTransferCommandPool() const { return m_transferCommandPool.get(); }
 
 	vk::UniqueShaderModule CreateShaderModule(const std::string& binPath);
-	std::unique_ptr<Texture> CreateTexture(const std::string& textPath);
+	std::unique_ptr<Texture> CreateTexture(PodHandle<TexturePod> textPod);
 
 	std::unique_ptr<Swapchain> RequestDeviceSwapchainOnSurface(vk::SurfaceKHR surface);
 	std::unique_ptr<GraphicsPipeline> RequestDeviceGraphicsPipeline(Swapchain* swapchain);
@@ -51,6 +51,8 @@ public:
 
 	void TransitionImageLayout(
 		vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+
+	vk::UniqueImageView CreateImageView(vk::Image image, vk::Format format);
 
 	vk::Result Present(const vk::PresentInfoKHR& info);
 	vk::Result SubmitGraphics(uint32 submitCount, vk::SubmitInfo* pSubmits, vk::Fence fence);

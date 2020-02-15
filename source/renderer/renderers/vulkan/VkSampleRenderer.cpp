@@ -136,6 +136,8 @@ void VkSampleRenderer::CreateRenderCommandBuffers()
 						// indices
 						m_renderCommandBuffers[i].bindIndexBuffer(gg.indexBuffer.get(), 0, vk::IndexType::eUint32);
 
+						m_descriptors->UpdateSamplerImageDescriptorSet(gg.albedoText.get());
+
 						// descriptor sets
 						m_renderCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
 							m_graphicsPipeline->GetPipelineLayout(), 0u, 1u, &(m_descriptors->GetDescriptorSets()[i]),
@@ -238,6 +240,9 @@ void VkSampleRenderer::RecordCommandBuffer(int32 imageIndex)
 					// indices
 					cmdBuffer.bindIndexBuffer(gg.indexBuffer.get(), 0, vk::IndexType::eUint32);
 
+
+					m_descriptors->UpdateSamplerImageDescriptorSet(gg.albedoText.get());
+
 					// descriptor sets
 					cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
 						m_graphicsPipeline->GetPipelineLayout(), 0u, 1u,
@@ -289,12 +294,9 @@ void VkSampleRenderer::DrawFrame()
 	// WIP: UNIFORM BUFFER UPDATES
 	{
 		auto world = Engine::GetWorld();
-		auto geomNode = world->GetAnyAvailableNode<GeometryNode>();
-		auto modelm = geomNode->GetNodeTransformWCS();
 		auto camera = world->GetActiveCamera();
 
 		vlkn::UniformBufferObject ubo = {};
-		ubo.model = modelm;
 		ubo.view = camera->GetViewMatrix();
 		ubo.proj = camera->GetProjectionMatrix();
 

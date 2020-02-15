@@ -123,17 +123,7 @@ Swapchain::Swapchain(Device* device, vk::SurfaceKHR surface)
 
 	// views
 	for (const auto& img : m_images) {
-		vk::ImageViewCreateInfo createInfo{};
-		createInfo.setImage(img)
-			.setViewType(vk::ImageViewType::e2D)
-			.setFormat(m_imageFormat)
-			.setComponents(vk::ComponentMapping{});
-		createInfo.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor);
-		createInfo.subresourceRange.setBaseMipLevel(0);
-		createInfo.subresourceRange.setLevelCount(1);
-		createInfo.subresourceRange.setBaseArrayLayer(0);
-		createInfo.subresourceRange.setLayerCount(1);
-		m_imageViews.emplace_back(device->createImageViewUnique(createInfo));
+		m_imageViews.emplace_back(device->CreateImageView(img, m_imageFormat));
 	}
 
 	// render pass

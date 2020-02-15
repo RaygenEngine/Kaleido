@@ -139,7 +139,9 @@ std::unique_ptr<Device> PhysicalDevice::RequestLogicalDevice()
 	}
 
 	// TODO: (get from assoc)
-	vk::PhysicalDeviceFeatures deviceFeatures = {};
+	vk::PhysicalDeviceFeatures deviceFeatures{};
+	// WIP: check if supported by the pd..
+	deviceFeatures.setSamplerAnisotropy(VK_TRUE);
 
 	vk::DeviceCreateInfo deviceCreateInfo{};
 	deviceCreateInfo.setPQueueCreateInfos(queueCreateInfos.data())

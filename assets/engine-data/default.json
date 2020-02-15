@@ -140,34 +140,6 @@
         ]
     },
     {
-        "+name": "Scene Ambient",
-        "+trs": {
-            "pos": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rot": {
-                "x": 0.0,
-                "y": -0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        "+type": "Ambient",
-        "ambientTerm": {
-            "x": 0.1076287105679512,
-            "y": 0.14117544889450073,
-            "z": 0.2599118947982788
-        },
-        "skybox": "/engine-data/skybox/stormy-days.cubemap.json",
-        "~children": []
-    },
-    {
         "+name": "helmet light",
         "+trs": {
             "pos": {
