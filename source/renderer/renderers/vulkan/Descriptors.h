@@ -8,9 +8,9 @@ namespace vlkn {
 class Device;
 class Swapchain;
 class GraphicsPipeline;
+class Texture;
 
 struct UniformBufferObject {
-	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 };
@@ -25,6 +25,8 @@ class Descriptors {
 	vk::UniqueDescriptorPool m_descriptorPool;
 	std::vector<vk::UniqueDescriptorSet> m_descriptorSets;
 
+	Device* m_assocDevice;
+
 public:
 	Descriptors(Device* device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline);
 
@@ -33,5 +35,7 @@ public:
 	std::vector<vk::DescriptorSet> GetDescriptorSets() const { return vk::uniqueToRaw(m_descriptorSets); }
 
 	vk::DescriptorPool GetDescriptorPool() { return m_descriptorPool.get(); }
+
+	void UpdateSamplerImageDescriptorSet(Texture* texture);
 };
 } // namespace vlkn

@@ -22,11 +22,14 @@ struct GeometryGroup {
 	vk::UniqueBuffer indexBuffer;
 	vk::UniqueDeviceMemory indexBufferMemory;
 
+	std::unique_ptr<Texture> albedoText;
+
 	uint32 indexCount{ 0u };
 };
 
 class Model {
 	std::vector<GeometryGroup> m_geometryGroups;
+
 
 public:
 	Model(Device* device, PodHandle<ModelPod> handle);

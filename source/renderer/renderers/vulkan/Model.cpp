@@ -59,6 +59,10 @@ Model::Model(Device* device, PodHandle<ModelPod> handle)
 
 			vgg.indexCount = static_cast<uint32>(gg.indices.size());
 
+			// albedo texture
+
+			vgg.albedoText = device->CreateTexture(data->materials[gg.materialIndex].Lock()->baseColorTexture);
+
 			// TODO: check moves
 			m_geometryGroups.emplace_back(std::move(vgg));
 		}

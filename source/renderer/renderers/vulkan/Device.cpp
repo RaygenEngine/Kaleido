@@ -66,11 +66,9 @@ vk::UniqueShaderModule Device::CreateShaderModule(const std::string& binPath)
 	return createShaderModuleUnique(createInfo);
 }
 
-std::unique_ptr<Texture> Device::CreateTexture(const std::string& textPath)
+std::unique_ptr<Texture> Device::CreateTexture(PodHandle<TexturePod> textPod)
 {
-	auto& data = AssetManager::GetOrCreateFromParentUri<TexturePod>(textPath, "/");
-
-	return std::make_unique<Texture>(this, data);
+	return std::make_unique<Texture>(this, textPod);
 }
 
 std::unique_ptr<Swapchain> Device::RequestDeviceSwapchainOnSurface(vk::SurfaceKHR surface)
@@ -288,6 +286,19 @@ void Device::TransitionImageLayout(
 
 	m_graphicsQueue.submit(1u, &submitInfo, {});
 	m_graphicsQueue.waitIdle();
+}
+
+vk::UniqueImageView Device::CreateImageView(vk::Image image, vk::Format format)
+{
+	vk::ImageViewCreateInfo viewInfo{};
+	viewInfo.setImage(image).setViewType(vk::ImageViewType::e2D).setFormat(format);
+	viewInfo.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor)
+		.setBaseMipLevel(0u)
+		.setLevelCount(1u)
+		.setBaseArrayLayer(0u)
+		.setLayerCount(1u);
+
+	return createImageViewUnique(viewInfo);
 }
 
 vk::Result Device::Present(const vk::PresentInfoKHR& info)
