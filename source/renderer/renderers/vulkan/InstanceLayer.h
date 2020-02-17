@@ -18,6 +18,8 @@ class InstanceLayer {
 	// WIP: change mem management here
 	std::vector<std::unique_ptr<PhysicalDevice>> m_capablePhysicalDevices;
 
+	vk::UniqueDebugUtilsMessengerEXT m_debugUtilsMessenger;
+
 public:
 	InstanceLayer(HWND assochWnd, HINSTANCE instance);
 	~InstanceLayer();

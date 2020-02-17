@@ -39,8 +39,6 @@ class VkSampleRenderer : public Renderer {
 	// Also test window minimization
 	void CreateRenderCommandBuffers();
 
-	void RecreateSwapChain(int32, int32);
-
 	DECLARE_EVENT_LISTENER(m_resizeListener, Event::OnWindowResize);
 	bool m_shouldRecreateSwapchain{ false };
 
