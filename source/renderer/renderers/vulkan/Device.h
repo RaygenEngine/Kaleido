@@ -3,6 +3,8 @@
 #include "renderer/renderers/vulkan/PhysicalDevice.h"
 #include "renderer/renderers/vulkan/Descriptors.h"
 #include "renderer/renderers/vulkan/Texture.h"
+#include "asset/pods/TexturePod.h"
+
 #include <vulkan/vulkan.hpp>
 
 namespace vlkn {
