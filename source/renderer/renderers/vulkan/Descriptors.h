@@ -5,7 +5,7 @@
 
 namespace vlkn {
 
-class Device;
+class DeviceWrapper;
 class Swapchain;
 class GraphicsPipeline;
 class Texture;
@@ -15,27 +15,29 @@ struct UniformBufferObject {
 	glm::mat4 proj;
 };
 
+
 // WIP: rename (uniform descriptors??)
 class Descriptors {
 
-	// uniforms
+	std::vector<vk::UniqueDescriptorPool> m_descriptorPools;
+
+	// global uniforms
 	std::vector<vk::UniqueBuffer> m_uniformBuffers;
 	std::vector<vk::UniqueDeviceMemory> m_uniformBuffersMemory;
 
-	vk::UniqueDescriptorPool m_descriptorPool;
-	std::vector<vk::UniqueDescriptorSet> m_descriptorSets;
+	uint32 m_availableSetCount;
 
-	Device* m_assocDevice;
+	DeviceWrapper& m_assocDevice;
+	Swapchain* m_assocSwapchain;
+	GraphicsPipeline* m_assocGraphicsPipeline;
+
 
 public:
-	Descriptors(Device* device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline);
+	Descriptors(DeviceWrapper& device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline);
 
-	std::vector<vk::Buffer> GetUniformBuffers() const { return vk::uniqueToRaw(m_uniformBuffers); }
-	std::vector<vk::DeviceMemory> GetUniformBuffersMemory() const { return vk::uniqueToRaw(m_uniformBuffersMemory); }
-	std::vector<vk::DescriptorSet> GetDescriptorSets() const { return vk::uniqueToRaw(m_descriptorSets); }
-
-	vk::DescriptorPool GetDescriptorPool() { return m_descriptorPool.get(); }
-
-	void UpdateSamplerImageDescriptorSet(Texture* texture);
+	std::vector<vk::DescriptorSet> CreateDescriptorSets();
+	vk::DescriptorPool GetDescriptorPool() { return m_descriptorPools.back().get(); }
+	std::vector<vk::Buffer> GetUniformBuffers() { return vk::uniqueToRaw(m_uniformBuffers); }
+	std::vector<vk::DeviceMemory> GetUniformBuffersMemory() { return vk::uniqueToRaw(m_uniformBuffersMemory); }
 };
 } // namespace vlkn

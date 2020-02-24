@@ -1,7 +1,7 @@
 #include "pch/pch.h"
 
-#include "renderer/renderers/vulkan/Device.h"
-#include "renderer/renderers/vulkan/PhysicalDevice.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
+#include "renderer/renderers/vulkan/PhysicalDeviceWrapper.h"
 #include "renderer/renderers/vulkan/Swapchain.h"
 #include "renderer/renderers/vulkan/GraphicsPipeline.h"
 #include "asset/AssetManager.h"
@@ -11,31 +11,72 @@
 
 namespace vlkn {
 
-Device::Device(vk::Device handle, PhysicalDevice* physicalDevice)
-	: vk::Device(handle)
-	, m_assocPhysicalDevice(physicalDevice)
+QueueFamily GetQueueFamilyWithBestRating(const std::vector<QueueFamily>& queueFamilies)
 {
-	// WIP: should be ready here, dont Get them again
-	auto graphicsQueueFamily = m_assocPhysicalDevice->GetBestGraphicsFamily();
-	auto transferQueueFamily = m_assocPhysicalDevice->GetBestTransferFamily();
-	auto presentQueueFamily = m_assocPhysicalDevice->GetBestPresentFamily();
+	auto it = std::max_element(
+		queueFamilies.begin(), queueFamilies.end(), [](QueueFamily a, QueueFamily b) { return a.rating < b.rating; });
 
-	m_graphicsQueue = getQueue(graphicsQueueFamily.familyIndex, 0);
-	m_transferQueue = getQueue(transferQueueFamily.familyIndex, 0);
-	m_presentQueue = getQueue(presentQueueFamily.familyIndex, 0);
+	return { *it };
+}
+
+void DeviceWrapper::Init(const PhysicalDeviceWrapper& physicalDevice, std::vector<const char*> deviceExtensions)
+{
+	m_assocPhysicalDevice = physicalDevice;
+
+	auto graphicsQueueFamily = GetQueueFamilyWithBestRating(physicalDevice.GetGraphicsFamilies());
+	auto transferQueueFamily = GetQueueFamilyWithBestRating(physicalDevice.GetTransferFamilies());
+	auto presentQueueFamily = GetQueueFamilyWithBestRating(physicalDevice.GetPresentFamilies());
+
+	// Get device's presentation queue
+	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32> uniqueQueueFamilies
+		= { graphicsQueueFamily.index, transferQueueFamily.index, presentQueueFamily.index };
+
+	float qp1 = 1.0f;
+	for (uint32 queueFamily : uniqueQueueFamilies) {
+		vk::DeviceQueueCreateInfo createInfo{};
+		createInfo.setQueueFamilyIndex(queueFamily).setQueueCount(1).setPQueuePriorities(&qp1);
+		queueCreateInfos.push_back(createInfo);
+	}
+
+	// TODO: (get from assoc)
+	vk::PhysicalDeviceFeatures deviceFeatures{};
+	// WIP: check if supported by the pd..
+	deviceFeatures.setSamplerAnisotropy(VK_TRUE);
+
+	vk::DeviceCreateInfo deviceCreateInfo{};
+	deviceCreateInfo.setPQueueCreateInfos(queueCreateInfos.data())
+		.setQueueCreateInfoCount(static_cast<uint32_t>(queueCreateInfos.size()))
+		.setPEnabledFeatures(&deviceFeatures)
+		.setPpEnabledExtensionNames(deviceExtensions.data())
+		.setEnabledExtensionCount(static_cast<uint32>(deviceExtensions.size()))
+		.setEnabledLayerCount(0);
+
+	m_vkHandle = m_assocPhysicalDevice->createDeviceUnique(deviceCreateInfo);
+
+	// Device queues
+	m_graphicsQueue.familyIndex = graphicsQueueFamily.index;
+	m_graphicsQueue.m_vkHandle = m_vkHandle->getQueue(graphicsQueueFamily.index, 0);
+
+	m_transferQueue.familyIndex = transferQueueFamily.index;
+	m_transferQueue.m_vkHandle = m_vkHandle->getQueue(transferQueueFamily.index, 0);
+
+	m_presentQueue.familyIndex = presentQueueFamily.index;
+	m_presentQueue.m_vkHandle = m_vkHandle->getQueue(presentQueueFamily.index, 0);
+
 
 	vk::CommandPoolCreateInfo graphicsPoolInfo{};
-	graphicsPoolInfo.setQueueFamilyIndex(graphicsQueueFamily.familyIndex);
-	graphicsPoolInfo.setFlags(vk::CommandPoolCreateFlags(0));
+	graphicsPoolInfo.setQueueFamilyIndex(m_graphicsQueue.familyIndex);
+	graphicsPoolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
-	m_graphicsCommandPool = createCommandPoolUnique(graphicsPoolInfo);
+	m_graphicsCommandPool = m_vkHandle->createCommandPoolUnique(graphicsPoolInfo);
 
 	vk::CommandPoolCreateInfo transferPoolInfo{};
-	transferPoolInfo.setQueueFamilyIndex(transferQueueFamily.familyIndex);
+	transferPoolInfo.setQueueFamilyIndex(m_transferQueue.familyIndex);
 	transferPoolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
 
-	m_transferCommandPool = createCommandPoolUnique(transferPoolInfo);
+	m_transferCommandPool = m_vkHandle->createCommandPoolUnique(transferPoolInfo);
 
 
 	vk::CommandBufferAllocateInfo allocInfo{};
@@ -43,61 +84,56 @@ Device::Device(vk::Device handle, PhysicalDevice* physicalDevice)
 		.setCommandPool(m_transferCommandPool.get())
 		.setCommandBufferCount(1u);
 
-	m_transferCommandBuffer = std::move(allocateCommandBuffersUnique(allocInfo)[0]);
+	m_transferCommandBuffer = std::move(m_vkHandle->allocateCommandBuffersUnique(allocInfo)[0]);
 
 
 	allocInfo.setCommandPool(m_graphicsCommandPool.get());
 
-	m_graphicsCommandBuffer = std::move(allocateCommandBuffersUnique(allocInfo)[0]);
+	m_graphicsCommandBuffer = std::move(m_vkHandle->allocateCommandBuffersUnique(allocInfo)[0]);
 }
 
-Device::~Device()
-{
-	destroy();
-}
-
-vk::UniqueShaderModule Device::CreateShaderModule(const std::string& binPath)
+vk::UniqueShaderModule DeviceWrapper::CreateShaderModule(const std::string& binPath)
 {
 	auto& data = AssetManager::GetOrCreateFromParentUri<BinaryPod>(binPath, "/").Lock()->data;
 
 	vk::ShaderModuleCreateInfo createInfo{};
 	createInfo.setCodeSize(data.size()).setPCode(reinterpret_cast<const uint32*>(data.data()));
 
-	return createShaderModuleUnique(createInfo);
+	return m_vkHandle->createShaderModuleUnique(createInfo);
 }
 
-std::unique_ptr<Texture> Device::CreateTexture(PodHandle<TexturePod> textPod)
+std::unique_ptr<Texture> DeviceWrapper::CreateTexture(PodHandle<TexturePod> textPod)
 {
-	return std::make_unique<Texture>(this, textPod);
+	return std::make_unique<Texture>(*this, textPod);
 }
 
-std::unique_ptr<Swapchain> Device::RequestDeviceSwapchainOnSurface(vk::SurfaceKHR surface)
+std::unique_ptr<Swapchain> DeviceWrapper::RequestDeviceSwapchainOnSurface(vk::SurfaceKHR surface)
 {
-	return std::make_unique<Swapchain>(this, surface);
+	return std::make_unique<Swapchain>(*this, surface);
 }
 
-std::unique_ptr<GraphicsPipeline> Device::RequestDeviceGraphicsPipeline(Swapchain* swapchain)
+std::unique_ptr<GraphicsPipeline> DeviceWrapper::RequestDeviceGraphicsPipeline(Swapchain* swapchain)
 {
-	return std::make_unique<GraphicsPipeline>(this, swapchain);
+	return std::make_unique<GraphicsPipeline>(*this, swapchain);
 }
 
-std::unique_ptr<Descriptors> Device::RequestDeviceDescriptors(Swapchain* swapchain, GraphicsPipeline* pipeline)
+std::unique_ptr<Descriptors> DeviceWrapper::RequestDeviceDescriptors(Swapchain* swapchain, GraphicsPipeline* pipeline)
 {
-	return std::make_unique<Descriptors>(this, swapchain, pipeline);
+	return std::make_unique<Descriptors>(*this, swapchain, pipeline);
 }
 
-void Device::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties,
+void DeviceWrapper::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties,
 	vk::UniqueBuffer& buffer, vk::UniqueDeviceMemory& memory)
 {
 	vk::BufferCreateInfo bufferInfo{};
 	bufferInfo.setSize(size).setUsage(usage).setSharingMode(vk::SharingMode::eExclusive);
 
-	buffer = createBufferUnique(bufferInfo);
-	vk::MemoryRequirements memRequirements = getBufferMemoryRequirements(buffer.get());
+	buffer = m_vkHandle->createBufferUnique(bufferInfo);
+	vk::MemoryRequirements memRequirements = m_vkHandle->getBufferMemoryRequirements(buffer.get());
 
 	vk::MemoryAllocateInfo allocInfo{};
 	allocInfo.setAllocationSize(memRequirements.size);
-	allocInfo.setMemoryTypeIndex(m_assocPhysicalDevice->FindMemoryType(memRequirements.memoryTypeBits, properties));
+	allocInfo.setMemoryTypeIndex(m_assocPhysicalDevice.FindMemoryType(memRequirements.memoryTypeBits, properties));
 
 	// From https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer
 	// It should be noted that in a real world application, you're not supposed to actually call vkAllocateMemory
@@ -106,12 +142,12 @@ void Device::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::M
 	// NVIDIA GTX 1080. The right way to allocate memory for a large number of objects at the same time is to create
 	// a custom allocator that splits up a single allocation among many different objects by using the offset
 	// parameters that we've seen in many functions.
-	memory = allocateMemoryUnique(allocInfo);
+	memory = m_vkHandle->allocateMemoryUnique(allocInfo);
 
-	bindBufferMemory(buffer.get(), memory.get(), 0);
+	m_vkHandle->bindBufferMemory(buffer.get(), memory.get(), 0);
 }
 
-void Device::CopyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
+void DeviceWrapper::CopyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSize size)
 {
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -129,19 +165,17 @@ void Device::CopyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSi
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_transferCommandBuffer.get());
 
-	m_transferQueue.submit(1u, &submitInfo, {});
+	m_transferQueue->submit(1u, &submitInfo, {});
 	// PERF:
 	// A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete,
 	// instead of executing one at a time. That may give the driver more opportunities to optimize.
-	m_transferQueue.waitIdle();
+	m_transferQueue->waitIdle();
 }
 
-void Device::CreateImage(uint32 width, uint32 height, vk::Format format, vk::ImageTiling tiling,
+void DeviceWrapper::CreateImage(uint32 width, uint32 height, vk::Format format, vk::ImageTiling tiling,
 	vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::UniqueImage& image,
 	vk::UniqueDeviceMemory& memory)
 {
-	auto pd = GetPhysicalDevice();
-
 	vk::ImageCreateInfo imageInfo{};
 	imageInfo.setImageType(vk::ImageType::e2D)
 		.setExtent({ width, height, 1 })
@@ -155,20 +189,20 @@ void Device::CreateImage(uint32 width, uint32 height, vk::Format format, vk::Ima
 		// WIP: test
 		.setSharingMode(vk::SharingMode::eExclusive);
 
-	image = createImageUnique(imageInfo);
+	image = m_vkHandle->createImageUnique(imageInfo);
 
-	vk::MemoryRequirements memRequirements = getImageMemoryRequirements(image.get());
+	vk::MemoryRequirements memRequirements = m_vkHandle->getImageMemoryRequirements(image.get());
 
 	vk::MemoryAllocateInfo allocInfo{};
 	allocInfo.setAllocationSize(memRequirements.size);
-	allocInfo.setMemoryTypeIndex(pd->FindMemoryType(memRequirements.memoryTypeBits, properties));
+	allocInfo.setMemoryTypeIndex(m_assocPhysicalDevice.FindMemoryType(memRequirements.memoryTypeBits, properties));
 
-	memory = allocateMemoryUnique(allocInfo);
+	memory = m_vkHandle->allocateMemoryUnique(allocInfo);
 
-	bindImageMemory(image.get(), memory.get(), 0);
+	m_vkHandle->bindImageMemory(image.get(), memory.get(), 0);
 }
 
-void Device::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32 width, uint32 height)
+void DeviceWrapper::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32 width, uint32 height)
 {
 	vk::CommandBufferBeginInfo beginInfo{};
 	beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -195,14 +229,14 @@ void Device::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32 width,
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_transferCommandBuffer.get());
 
-	m_transferQueue.submit(1u, &submitInfo, {});
+	m_transferQueue->submit(1u, &submitInfo, {});
 	// PERF:
 	// A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete,
 	// instead of executing one at a time. That may give the driver more opportunities to optimize.
-	m_transferQueue.waitIdle();
+	m_transferQueue->waitIdle();
 }
 
-void Device::TransitionImageLayout(
+void DeviceWrapper::TransitionImageLayout(
 	vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
 	vk::ImageMemoryBarrier barrier{};
@@ -214,7 +248,7 @@ void Device::TransitionImageLayout(
 		.setBaseArrayLayer(0u)
 		.setLayerCount(1u);
 
-	if (newLayout == vk::ImageLayout::eColorAttachmentOptimal) {
+	if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
 		barrier.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth);
 
 		// if has stencil component
@@ -237,10 +271,10 @@ void Device::TransitionImageLayout(
 		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
 		destinationStage = vk::PipelineStageFlagBits::eTransfer;
 
+		// WIP: is this an implicit onwership of the transfer queue?
+		// it should be explicit
 		barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
-		// WIP should not be accessed from pd
-		auto transferQueueFamily = m_assocPhysicalDevice->GetBestTransferFamily();
-		barrier.setDstQueueFamilyIndex(transferQueueFamily.familyIndex);
+		barrier.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
 	}
 	// transfer -> graphics
 	else if (oldLayout == vk::ImageLayout::eTransferDstOptimal
@@ -251,12 +285,9 @@ void Device::TransitionImageLayout(
 		sourceStage = vk::PipelineStageFlagBits::eTransfer;
 		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
 
-		// WIP should not be accessed from pd
-		auto transferQueueFamily = m_assocPhysicalDevice->GetBestTransferFamily();
-		barrier.setSrcQueueFamilyIndex(transferQueueFamily.familyIndex);
-		// WIP should not be accessed from pd
-		auto graphicsQueueFamily = m_assocPhysicalDevice->GetBestGraphicsFamily();
-		barrier.setDstQueueFamilyIndex(graphicsQueueFamily.familyIndex);
+		// WIP: this should be a transition?
+		barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
+		barrier.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
 	}
 	else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
 		barrier.setSrcAccessMask(vk::AccessFlags{ 0u });
@@ -284,31 +315,9 @@ void Device::TransitionImageLayout(
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_graphicsCommandBuffer.get());
 
-	m_graphicsQueue.submit(1u, &submitInfo, {});
-	m_graphicsQueue.waitIdle();
+	m_graphicsQueue->submit(1u, &submitInfo, {});
+	m_graphicsQueue->waitIdle();
 }
 
-vk::UniqueImageView Device::CreateImageView(vk::Image image, vk::Format format)
-{
-	vk::ImageViewCreateInfo viewInfo{};
-	viewInfo.setImage(image).setViewType(vk::ImageViewType::e2D).setFormat(format);
-	viewInfo.subresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor)
-		.setBaseMipLevel(0u)
-		.setLevelCount(1u)
-		.setBaseArrayLayer(0u)
-		.setLayerCount(1u);
-
-	return createImageViewUnique(viewInfo);
-}
-
-vk::Result Device::Present(const vk::PresentInfoKHR& info)
-{
-	return m_presentQueue.presentKHR(info);
-}
-
-vk::Result Device::SubmitGraphics(uint32 submitCount, vk::SubmitInfo* pSubmits, vk::Fence fence)
-{
-	return m_graphicsQueue.submit(submitCount, pSubmits, fence);
-}
 
 } // namespace vlkn

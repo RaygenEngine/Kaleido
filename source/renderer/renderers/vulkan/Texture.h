@@ -9,7 +9,7 @@
 
 namespace vlkn {
 
-class Device;
+class DeviceWrapper;
 
 class Texture {
 
@@ -22,7 +22,7 @@ class Texture {
 	vk::UniqueSampler m_sampler;
 
 public:
-	Texture(Device* device, PodHandle<TexturePod> handle);
+	Texture(DeviceWrapper& device, PodHandle<TexturePod> handle);
 
 	vk::ImageView GetView() const { return m_view.get(); }
 	vk::Sampler GetSampler() const { return m_sampler.get(); }

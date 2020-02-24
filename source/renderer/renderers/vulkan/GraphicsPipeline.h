@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/renderers/vulkan/Device.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "renderer/renderers/vulkan/Swapchain.h"
 #include "renderer/renderers/vulkan/Descriptors.h"
 
@@ -16,7 +16,7 @@ class GraphicsPipeline {
 
 
 public:
-	GraphicsPipeline(Device* device, Swapchain* swapchain);
+	GraphicsPipeline(DeviceWrapper& device, Swapchain* swapchain);
 
 	vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_descriptorSetLayout.get(); }
 

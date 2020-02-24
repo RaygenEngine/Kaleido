@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/renderers/vulkan/Device.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -19,17 +19,17 @@ class Swapchain {
 
 	std::vector<vk::UniqueFramebuffer> m_framebuffers;
 
-	Device* m_assocDevice;
+	DeviceWrapper& m_assocDevice;
 	vk::SurfaceKHR m_assocSurface;
 
 	// WIP: depth image
-	vk::UniqueImage depthImage;
-	vk::UniqueDeviceMemory depthImageMemory;
-	vk::UniqueImageView depthImageView;
+	vk::UniqueImage m_depthImage;
+	vk::UniqueDeviceMemory m_depthImageMemory;
+	vk::UniqueImageView m_depthImageView;
 
 
 public:
-	Swapchain(Device* device, vk::SurfaceKHR surface);
+	Swapchain(DeviceWrapper& device, vk::SurfaceKHR surface);
 
 	vk::SwapchainKHR Get() const { return m_handle.get(); }
 	vk::Format GetImageFormat() const { return m_imageFormat; }

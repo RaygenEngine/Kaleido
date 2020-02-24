@@ -1,6 +1,6 @@
 #include "pch/pch.h"
 
-#include "renderer/renderers/vulkan/InstanceLayer.h"
+#include "renderer/renderers/vulkan/InstanceWrapper.h"
 
 #include "system/Logger.h"
 
@@ -29,7 +29,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(
 }
 
 namespace {
-VkBool32 debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+VkBool32 DebugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT messageTypes, VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
 	void* /*pUserData*/)
 {
@@ -67,9 +67,9 @@ VkBool32 debugMessageFunc(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
 
 	switch (messageSeverity) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: LOG_INFO(message.c_str());
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: LOG_WARN(message.c_str());
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: LOG_ERROR(message.c_str());
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: LOG_INFO(message.c_str()); break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: LOG_WARN(message.c_str()); break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: LOG_ERROR(message.c_str()); break;
 	}
 
 	return false;
@@ -88,7 +88,7 @@ bool CheckLayers(std::vector<char const*> const& layers, std::vector<vk::LayerPr
 
 namespace vlkn {
 
-InstanceLayer::InstanceLayer(HWND assochWnd, HINSTANCE instance)
+void InstanceWrapper::Init(HWND assochWnd, HINSTANCE instance)
 {
 	std::vector<vk::LayerProperties> instanceLayerProperties = vk::enumerateInstanceLayerProperties();
 
@@ -121,17 +121,17 @@ InstanceLayer::InstanceLayer(HWND assochWnd, HINSTANCE instance)
 		.setPpEnabledLayerNames(instanceLayerNames.data());
 
 
-	m_instance = vk::createInstanceUnique(createInfo);
+	m_vkHandle = vk::createInstanceUnique(createInfo);
 
 
 	pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-		m_instance->getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+		m_vkHandle->getProcAddr("vkCreateDebugUtilsMessengerEXT"));
 	if (!pfnVkCreateDebugUtilsMessengerEXT) {
 		LOG_ABORT("GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function.");
 	}
 
 	pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-		m_instance->getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+		m_vkHandle->getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
 	if (!pfnVkDestroyDebugUtilsMessengerEXT) {
 		LOG_ABORT("GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function.");
 	}
@@ -141,8 +141,8 @@ InstanceLayer::InstanceLayer(HWND assochWnd, HINSTANCE instance)
 	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
 													   | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
 													   | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
-	m_debugUtilsMessenger = m_instance->createDebugUtilsMessengerEXTUnique(
-		vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &debugMessageFunc));
+	m_debugUtilsMessenger = m_vkHandle->createDebugUtilsMessengerEXTUnique(
+		vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageFunc));
 
 	// create surface (WIP: currently C form)
 	VkWin32SurfaceCreateInfoKHR win32SurfaceInfo = { VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR };
@@ -150,28 +150,28 @@ InstanceLayer::InstanceLayer(HWND assochWnd, HINSTANCE instance)
 	win32SurfaceInfo.hinstance = instance;
 
 	VkSurfaceKHR tmp;
-	vkCall(vkCreateWin32SurfaceKHR(m_instance.get(), &win32SurfaceInfo, nullptr, &tmp));
+	vkCall(vkCreateWin32SurfaceKHR(m_vkHandle.get(), &win32SurfaceInfo, nullptr, &tmp));
 	m_surface = tmp;
 
 	// get capable physical devices
-	auto deviceHandles = m_instance->enumeratePhysicalDevices();
+	auto deviceHandles = m_vkHandle->enumeratePhysicalDevices();
 
 	for (const auto dH : deviceHandles) {
-		auto pD = std::make_unique<PhysicalDevice>(dH, m_surface);
+		PhysicalDeviceWrapper pd{};
+		pd.Init(dH, m_surface);
 		// if capable
-		if (pD->GetDeviceRating() > 0) {
-			m_capablePhysicalDevices.push_back(std::move(pD));
+		if (pd.GetDeviceRating() > 0) {
+			m_capablePhysicalDevices.push_back(pd);
 		}
 	}
 }
 
-InstanceLayer::~InstanceLayer()
+InstanceWrapper::~InstanceWrapper()
 {
-	m_instance->destroySurfaceKHR(m_surface);
-	// m_instance->destroy();
+	m_vkHandle->destroySurfaceKHR(m_surface);
 }
 
-PhysicalDevice* InstanceLayer::GetBestCapablePhysicalDevice()
+PhysicalDeviceWrapper& InstanceWrapper::GetBestCapablePhysicalDevice()
 {
 	CLOG_ABORT(m_capablePhysicalDevices.empty(), "No capable physical device found for required vulkan rendering");
 
@@ -183,7 +183,7 @@ PhysicalDevice* InstanceLayer::GetBestCapablePhysicalDevice()
 
 	// return { it->get() };
 
-	return m_capablePhysicalDevices[0].get();
+	return m_capablePhysicalDevices[0];
 }
 
 } // namespace vlkn

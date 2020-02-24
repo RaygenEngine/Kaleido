@@ -14,10 +14,7 @@ public:
 	[[nodiscard]] const PodEntry* _Debug() const { return Engine::GetAssetManager()->GetEntry(*this); }
 
 
-	[[nodiscard]] const PodType* Lock() const
-	{
-		return Engine::GetAssetManager()->_Handle_AccessPod<PodType>(podId);
-	}
+	[[nodiscard]] const PodType* Lock() const { return Engine::GetAssetManager()->_Handle_AccessPod<PodType>(podId); }
 
 	friend class AssetManager;
 };

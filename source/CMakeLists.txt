@@ -49,9 +49,9 @@ set(SOURCE_FILES
 	renderer/renderers/opengl/deferred/GLDeferredRenderer.cpp
 
 	renderer/renderers/vulkan/VkSampleRenderer.cpp
-	renderer/renderers/vulkan/InstanceLayer.cpp
-	renderer/renderers/vulkan/PhysicalDevice.cpp
-	renderer/renderers/vulkan/Device.cpp
+	renderer/renderers/vulkan/InstanceWrapper.cpp
+	renderer/renderers/vulkan/PhysicalDeviceWrapper.cpp
+	renderer/renderers/vulkan/DeviceWrapper.cpp
 	renderer/renderers/vulkan/Swapchain.cpp
 	renderer/renderers/vulkan/GraphicsPipeline.cpp
 	renderer/renderers/vulkan/Model.cpp
@@ -189,14 +189,15 @@ set(HEADER_FILES
 	renderer/renderers/opengl/deferred/GLDeferredRenderer.h
 
 	renderer/renderers/vulkan/VkSampleRenderer.h
-	renderer/renderers/vulkan/InstanceLayer.h
-	renderer/renderers/vulkan/PhysicalDevice.h
-	renderer/renderers/vulkan/Device.h
+	renderer/renderers/vulkan/InstanceWrapper.h
+	renderer/renderers/vulkan/PhysicalDeviceWrapper.h
+	renderer/renderers/vulkan/DeviceWrapper.h
 	renderer/renderers/vulkan/Swapchain.h
 	renderer/renderers/vulkan/GraphicsPipeline.h
 	renderer/renderers/vulkan/Model.h
 	renderer/renderers/vulkan/Texture.h
 	renderer/renderers/vulkan/Descriptors.h
+	renderer/renderers/vulkan/VkObjectWrapper.h
 
 	system/Engine.h
 	system/Object.h

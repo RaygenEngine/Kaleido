@@ -4,8 +4,9 @@
 #include "asset/pods/ModelPod.h"
 
 namespace vlkn {
-GraphicsPipeline::GraphicsPipeline(Device* device, Swapchain* swapchain)
+GraphicsPipeline::GraphicsPipeline(DeviceWrapper& device, Swapchain* swapchain)
 {
+
 	// descriptor layout
 
 	vk::DescriptorSetLayoutBinding uboLayoutBinding{};
@@ -29,8 +30,8 @@ GraphicsPipeline::GraphicsPipeline(Device* device, Swapchain* swapchain)
 	m_descriptorSetLayout = device->createDescriptorSetLayoutUnique(layoutInfo);
 
 	// shaders
-	auto vertShaderModule = device->CreateShaderModule("/engine-data/spv/vert.spv");
-	auto fragShaderModule = device->CreateShaderModule("/engine-data/spv/frag.spv");
+	auto vertShaderModule = device.CreateShaderModule("/engine-data/spv/vert.spv");
+	auto fragShaderModule = device.CreateShaderModule("/engine-data/spv/frag.spv");
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.setStage(vk::ShaderStageFlagBits::eVertex).setModule(vertShaderModule.get()).setPName("main");

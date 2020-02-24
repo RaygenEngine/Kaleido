@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/renderers/vulkan/Device.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "asset/pods/ModelPod.h"
 
 #include "vulkan/vulkan.hpp"
@@ -24,6 +24,11 @@ struct GeometryGroup {
 
 	std::unique_ptr<Texture> albedoText;
 
+	// one for each swapchain image
+	// TODO: check
+	// https://stackoverflow.com/questions/36772607/vulkan-texture-rendering-on-multiple-meshes this
+	std::vector<vk::DescriptorSet> descriptorSets;
+
 	uint32 indexCount{ 0u };
 };
 
@@ -32,7 +37,7 @@ class Model {
 
 
 public:
-	Model(Device* device, PodHandle<ModelPod> handle);
+	Model(DeviceWrapper& device, Descriptors* descriptors, PodHandle<ModelPod> handle);
 
 	const std::vector<GeometryGroup>& GetGeometryGroups() const { return m_geometryGroups; }
 
