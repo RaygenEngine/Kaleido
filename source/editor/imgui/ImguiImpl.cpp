@@ -120,14 +120,14 @@ void ImguiImpl::InitVulkan()
 	}
 	auto& r = *rendererPtr;
 
-	auto physDev = r.m_device->GetPhysicalDevice();
+	auto physDev = r.m_device.GetPhysicalDevice();
 
 	ImGui_ImplVulkan_InitInfo init = {};
-	init.Instance = r.m_instanceLayer->GetInstance();
-	init.PhysicalDevice = *physDev;
-	init.Device = *r.m_device.get();
-	init.QueueFamily = physDev->GetBestGraphicsFamily().familyIndex;
-	init.Queue = r.m_device->GetGraphicsQueue();
+	init.Instance = r.m_instance.get();
+	init.PhysicalDevice = physDev.get();
+	init.Device = r.m_device.get();
+	init.QueueFamily = r.m_device.GetGraphicsQueue().familyIndex;
+	init.Queue = r.m_device.GetGraphicsQueue().get();
 	init.PipelineCache = VK_NULL_HANDLE;
 	init.DescriptorPool = r.m_descriptors->GetDescriptorPool();
 
@@ -138,7 +138,7 @@ void ImguiImpl::InitVulkan()
 	ImGui_ImplVulkan_Init(&init, r.m_swapchain->GetRenderPass());
 
 
-	auto cmdBuffer = r.m_device->GetTransferCommandBuffer();
+	auto cmdBuffer = r.m_device.GetTransferCommandBuffer();
 
 	//	vkCall(vkResetCommandPool(m_device, m_commandPool, 0));
 
@@ -156,7 +156,7 @@ void ImguiImpl::InitVulkan()
 
 	cmdBuffer.end();
 
-	r.m_device->GetTransferQueue().submit(1, &end_info, {});
+	r.m_device.GetTransferQueue()->submit(1, &end_info, {});
 	r.m_device->waitIdle();
 
 	ImGui_ImplVulkan_DestroyFontUploadObjects();

@@ -2,96 +2,76 @@
 #include "Descriptors.h"
 
 
-#include "renderer/renderers/vulkan/Device.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "renderer/renderers/vulkan/Swapchain.h"
 #include "renderer/renderers/vulkan/GraphicsPipeline.h"
 #include "renderer/renderers/vulkan/Texture.h"
 
 
+#define POOL_PER_IMAGE_SET_COUNT 10
+
 namespace vlkn {
-// WIP: descriptor set should describe
-// 1. material layout (samplers etc)
-// 2. other uniforms
-Descriptors::Descriptors(Device* device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline)
-	: m_assocDevice(device)
+
+vk::UniqueDescriptorPool CreateDescriptorPool(DeviceWrapper& device, uint32 setCount)
 {
-	uint32 setCount = swapchain->GetImageCount();
-
-	// uniform buffer (memory)
-
-	vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	m_uniformBuffers.resize(setCount);
-	m_uniformBuffersMemory.resize(setCount);
-
-	for (size_t i = 0; i < setCount; i++) {
-		m_assocDevice->CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, m_uniformBuffers[i],
-			m_uniformBuffersMemory[i]);
-	}
-
-	// descriptor pool
-
 	std::array<vk::DescriptorPoolSize, 2> poolSizes{};
+	// for global uniforms
 	poolSizes[0].setType(vk::DescriptorType::eUniformBuffer).setDescriptorCount(setCount);
+	// for image sampler combinations
 	poolSizes[1].setType(vk::DescriptorType::eCombinedImageSampler).setDescriptorCount(setCount);
 
 	vk::DescriptorPoolCreateInfo poolInfo{};
 	poolInfo.setPoolSizeCount(static_cast<uint32_t>(poolSizes.size()))
 		.setPPoolSizes(poolSizes.data())
-		.setMaxSets(static_cast<uint32_t>(setCount) + 2); // WIP: cause of imgui?
+		.setMaxSets(POOL_PER_IMAGE_SET_COUNT * setCount);
 
-	m_descriptorPool = m_assocDevice->createDescriptorPoolUnique(poolInfo);
+	return device->createDescriptorPoolUnique(poolInfo);
+}
 
-	// descriptor sets
+// WIP: descriptor set should describe
+// 1. material layout (samplers etc)
+// 2. other uniforms
+Descriptors::Descriptors(DeviceWrapper& device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline)
+	: m_assocDevice(device)
+	, m_assocSwapchain(swapchain)
+	, m_assocGraphicsPipeline(graphicsPipeline)
+{
+	vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
 
-	std::vector<vk::DescriptorSetLayout> layouts(setCount, graphicsPipeline->GetDescriptorSetLayout());
+	m_uniformBuffers.resize(m_assocSwapchain->GetImageCount());
+	m_uniformBuffersMemory.resize(m_assocSwapchain->GetImageCount());
+
+	for (size_t i = 0; i < m_assocSwapchain->GetImageCount(); i++) {
+		device.CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, m_uniformBuffers[i],
+			m_uniformBuffersMemory[i]);
+	}
+
+	m_availableSetCount = POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount();
+
+	m_descriptorPools.emplace_back(CreateDescriptorPool(m_assocDevice, m_assocSwapchain->GetImageCount()));
+}
+std::vector<vk::DescriptorSet> Descriptors::CreateDescriptorSets()
+{
+	// TODO: This system should check if each active pool for allocation space, (also free pool if empty?)
+	if (m_availableSetCount < POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount()) {
+		LOG_WARN("Requested descriptor set count is bigger than the available set count of current descriptor pool");
+		m_descriptorPools.emplace_back(CreateDescriptorPool(m_assocDevice, m_assocSwapchain->GetImageCount()));
+		m_availableSetCount = POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount();
+	}
+
+	std::vector<vk::DescriptorSetLayout> layouts(
+		m_assocSwapchain->GetImageCount(), m_assocGraphicsPipeline->GetDescriptorSetLayout());
 	vk::DescriptorSetAllocateInfo allocInfo{};
-	allocInfo.setDescriptorPool(m_descriptorPool.get())
-		.setDescriptorSetCount(static_cast<uint32>(setCount))
+
+	allocInfo.setDescriptorPool(m_descriptorPools.back().get())
+		.setDescriptorSetCount(m_assocSwapchain->GetImageCount())
 		.setPSetLayouts(layouts.data());
 
-	m_descriptorSets.resize(setCount);
-	m_descriptorSets = m_assocDevice->allocateDescriptorSetsUnique(allocInfo);
+	m_availableSetCount -= m_assocSwapchain->GetImageCount();
 
-	for (uint32 i = 0; i < setCount; ++i) {
-		vk::DescriptorBufferInfo bufferInfo{};
-		bufferInfo.setBuffer(m_uniformBuffers[i].get()).setOffset(0).setRange(sizeof(UniformBufferObject));
-
-		vk::WriteDescriptorSet descriptorWrite{};
-		descriptorWrite.setDstSet(m_descriptorSets[i].get())
-			.setDstBinding(0)
-			.setDstArrayElement(0)
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-			.setDescriptorCount(1u)
-			.setPBufferInfo(&bufferInfo)
-			.setPImageInfo(nullptr)
-			.setPTexelBufferView(nullptr);
-
-		m_assocDevice->updateDescriptorSets(1u, &descriptorWrite, 0u, nullptr);
-	}
+	// WIP: are those destructed?
+	return m_assocDevice->allocateDescriptorSets(allocInfo);
 }
-void Descriptors::UpdateSamplerImageDescriptorSet(vlkn::Texture* texture)
-{
-	// PERF: not the right way to do this
-	auto arr = vk::uniqueToRaw(m_descriptorSets);
-	for (auto& ds : arr) {
-		vk::DescriptorImageInfo imageInfo{};
-		imageInfo.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-			.setImageView(texture->GetView())
-			.setSampler(texture->GetSampler());
 
-		vk::WriteDescriptorSet descriptorWrite{};
-		descriptorWrite.setDstSet(ds)
-			.setDstBinding(1)
-			.setDstArrayElement(0)
-			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-			.setDescriptorCount(1u)
-			.setPBufferInfo(nullptr)
-			.setPImageInfo(&imageInfo)
-			.setPTexelBufferView(nullptr);
-
-		m_assocDevice->updateDescriptorSets(1u, &descriptorWrite, 0u, nullptr);
-	}
-}
 } // namespace vlkn

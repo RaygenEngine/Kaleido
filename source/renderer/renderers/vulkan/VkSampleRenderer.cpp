@@ -15,67 +15,6 @@
 
 #include <vulkan/vulkan_win32.h>
 
-namespace {
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-	const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
-{
-	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-	}
-	else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-}
-
-void DestroyDebugUtilsMessengerEXT(
-	VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
-{
-	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		func(instance, debugMessenger, pAllocator);
-	}
-}
-
-VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData)
-{
-	switch (messageSeverity) {
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-			LOG_DEBUG("Validation layer: {}", pCallbackData->pMessage);
-			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-			LOG_INFO("Validation layer: {}", pCallbackData->pMessage);
-			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-			LOG_WARN("Validation layer: {}", pCallbackData->pMessage);
-			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-			LOG_ERROR("Validation layer: {}", pCallbackData->pMessage);
-			break;
-		default: break;
-	}
-
-	return VK_FALSE;
-}
-
-void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
-{
-	createInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-								 | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-								 | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
-							 | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-							 | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = DebugCallback;
-}
-
-std::vector<const char*> requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
-std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-} // namespace
 namespace vlkn {
 
 VkSampleRenderer::~VkSampleRenderer()
@@ -85,12 +24,26 @@ VkSampleRenderer::~VkSampleRenderer()
 	Engine::Get().m_remakeWindow = true;
 }
 
+void VkSampleRenderer::CreateGeometry()
+{
+	auto world = Engine::GetWorld();
+
+	for (auto geomNode : world->GetNodeIterator<GeometryNode>()) {
+
+		auto model = geomNode->GetModel();
+		m_models.emplace_back(std::make_unique<Model>(m_device, m_descriptors.get(), model));
+		m_models.back()->m_transform = geomNode->GetNodeTransformWCS();
+	}
+}
+
 void VkSampleRenderer::CreateRenderCommandBuffers()
 {
+	m_renderCommandBuffers.clear();
+
 	m_renderCommandBuffers.resize(m_swapchain->GetImageCount());
 
 	vk::CommandBufferAllocateInfo allocInfo{};
-	allocInfo.setCommandPool(m_device->GetGraphicsCommandPool())
+	allocInfo.setCommandPool(m_device.GetGraphicsCommandPool())
 		.setLevel(vk::CommandBufferLevel::ePrimary)
 		.setCommandBufferCount(static_cast<uint32>(m_renderCommandBuffers.size()));
 
@@ -136,12 +89,10 @@ void VkSampleRenderer::CreateRenderCommandBuffers()
 						// indices
 						m_renderCommandBuffers[i].bindIndexBuffer(gg.indexBuffer.get(), 0, vk::IndexType::eUint32);
 
-						m_descriptors->UpdateSamplerImageDescriptorSet(gg.albedoText.get());
 
 						// descriptor sets
 						m_renderCommandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-							m_graphicsPipeline->GetPipelineLayout(), 0u, 1u, &(m_descriptors->GetDescriptorSets()[i]),
-							0u, nullptr);
+							m_graphicsPipeline->GetPipelineLayout(), 0u, 1u, &(gg.descriptorSets[i]), 0u, nullptr);
 
 						// draw call (triangle)
 						m_renderCommandBuffers[i].drawIndexed(gg.indexCount, 1u, 0u, 0u, 0u);
@@ -158,34 +109,23 @@ void VkSampleRenderer::CreateRenderCommandBuffers()
 
 void VkSampleRenderer::Init(HWND assochWnd, HINSTANCE instance)
 {
+	// WIP: this is not renderer code ....
+	m_instance.Init(assochWnd, instance);
+	auto& physicalDevice = m_instance.GetBestCapablePhysicalDevice();
+	m_device.Init(physicalDevice, { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_MAINTENANCE1_EXTENSION_NAME });
+	// ......//
+
 	m_resizeListener.Bind([&](auto, auto) { m_shouldRecreateSwapchain = true; });
 
-	m_instanceLayer = std::make_unique<vlkn::InstanceLayer>(assochWnd, instance);
+	m_swapchain = m_device.RequestDeviceSwapchainOnSurface(m_instance.GetSurface());
+	m_graphicsPipeline = m_device.RequestDeviceGraphicsPipeline(m_swapchain.get());
+	m_descriptors = m_device.RequestDeviceDescriptors(m_swapchain.get(), m_graphicsPipeline.get());
 
-	auto physicalDevice = m_instanceLayer->GetBestCapablePhysicalDevice();
-
-	m_device = physicalDevice->RequestLogicalDevice();
-
-	m_swapchain = m_device->RequestDeviceSwapchainOnSurface(m_instanceLayer->GetSurface());
-
-	m_graphicsPipeline = m_device->RequestDeviceGraphicsPipeline(m_swapchain.get());
-
-	m_descriptors = m_device->RequestDeviceDescriptors(m_swapchain.get(), m_graphicsPipeline.get());
-
-	auto world = Engine::GetWorld();
-
-	for (auto geomNode : world->GetNodeIterator<GeometryNode>()) {
-
-		auto model = geomNode->GetModel();
-		m_models.emplace_back(std::make_unique<Model>(m_device.get(), model));
-		m_models.back()->m_transform = geomNode->GetNodeTransformWCS();
-	}
-
+	CreateGeometry();
 
 	CreateRenderCommandBuffers();
 
 	// semaphores
-
 	m_imageAvailableSemaphore = m_device->createSemaphoreUnique({});
 	m_renderFinishedSemaphore = m_device->createSemaphoreUnique({});
 
@@ -240,13 +180,9 @@ void VkSampleRenderer::RecordCommandBuffer(int32 imageIndex)
 					// indices
 					cmdBuffer.bindIndexBuffer(gg.indexBuffer.get(), 0, vk::IndexType::eUint32);
 
-
-					m_descriptors->UpdateSamplerImageDescriptorSet(gg.albedoText.get());
-
 					// descriptor sets
 					cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-						m_graphicsPipeline->GetPipelineLayout(), 0u, 1u,
-						&(m_descriptors->GetDescriptorSets()[imageIndex]), 0u, nullptr);
+						m_graphicsPipeline->GetPipelineLayout(), 0u, 1u, &(gg.descriptorSets[imageIndex]), 0u, nullptr);
 
 					// draw call (triangle)
 					cmdBuffer.drawIndexed(gg.indexCount, 1u, 0u, 0u, 0u);
@@ -271,14 +207,22 @@ void VkSampleRenderer::DrawFrame()
 		m_graphicsPipeline.reset();
 		m_swapchain.reset();
 
-		m_device->freeCommandBuffers(m_device->GetGraphicsCommandPool(), m_renderCommandBuffers);
+		m_device->freeCommandBuffers(m_device.GetGraphicsCommandPool(), m_renderCommandBuffers);
 
-		m_swapchain = m_device->RequestDeviceSwapchainOnSurface(m_instanceLayer->GetSurface());
-		m_graphicsPipeline = m_device->RequestDeviceGraphicsPipeline(m_swapchain.get());
-		m_descriptors = m_device->RequestDeviceDescriptors(m_swapchain.get(), m_graphicsPipeline.get());
+		m_swapchain = m_device.RequestDeviceSwapchainOnSurface(m_instance.GetSurface());
+		m_graphicsPipeline = m_device.RequestDeviceGraphicsPipeline(m_swapchain.get());
+		m_descriptors = m_device.RequestDeviceDescriptors(m_swapchain.get(), m_graphicsPipeline.get());
 
-		// CreateRenderCommandBuffers();
+		m_models.clear();
+		CreateGeometry();
+
+		m_renderCommandBuffers.clear();
+		CreateRenderCommandBuffers();
+
+		m_shouldRecreateSwapchain = false;
+		::ImguiImpl::InitVulkan();
 	}
+
 	uint32 imageIndex;
 
 	vk::Result result0 = m_device->acquireNextImageKHR(
@@ -296,7 +240,7 @@ void VkSampleRenderer::DrawFrame()
 		auto world = Engine::GetWorld();
 		auto camera = world->GetActiveCamera();
 
-		vlkn::UniformBufferObject ubo = {};
+		vlkn::UniformBufferObject ubo{};
 		ubo.view = camera->GetViewMatrix();
 		ubo.proj = camera->GetProjectionMatrix();
 
@@ -326,15 +270,16 @@ void VkSampleRenderer::DrawFrame()
 	vk::Semaphore signalSemaphores[] = { m_renderFinishedSemaphore.get() };
 	submitInfo.setSignalSemaphoreCount(1u).setPSignalSemaphores(signalSemaphores);
 
-	m_device->SubmitGraphics(1u, &submitInfo, {});
-
+	m_device.GetGraphicsQueue()->submit(1u, &submitInfo, {});
 	vk::PresentInfoKHR presentInfo;
 	presentInfo.setWaitSemaphoreCount(1u).setPWaitSemaphores(signalSemaphores);
 
 	vk::SwapchainKHR swapChains[] = { m_swapchain->Get() };
 	presentInfo.setSwapchainCount(1u).setPSwapchains(swapChains).setPImageIndices(&imageIndex).setPResults(nullptr);
 
-	vk::Result result1 = m_device->Present(presentInfo);
+	vk::Result result1 = m_device.GetPresentQueue()->presentKHR(presentInfo);
+
+	m_device.GetPresentQueue()->waitIdle();
 
 	switch (result1) {
 		case vk::Result::eErrorOutOfDateKHR:

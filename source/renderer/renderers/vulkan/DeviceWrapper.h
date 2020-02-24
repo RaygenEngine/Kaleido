@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/renderers/vulkan/PhysicalDevice.h"
+#include "renderer/renderers/vulkan/PhysicalDeviceWrapper.h"
 #include "renderer/renderers/vulkan/Descriptors.h"
 #include "renderer/renderers/vulkan/Texture.h"
 #include "asset/pods/TexturePod.h"
@@ -12,13 +12,19 @@ namespace vlkn {
 class Swapchain;
 class GraphicsPipeline;
 
-class Device : public vk::Device {
+struct DeviceQueue : VkObjectWrapper<vk::Queue> {
+	friend class DeviceWrapper;
 
-	vk::Queue m_graphicsQueue;
-	vk::Queue m_transferQueue;
-	vk::Queue m_presentQueue;
+	uint32 familyIndex;
+};
 
-	PhysicalDevice* m_assocPhysicalDevice;
+class DeviceWrapper : public VkUniqueObjectWrapper<vk::UniqueDevice> {
+
+	DeviceQueue m_graphicsQueue;
+	DeviceQueue m_transferQueue;
+	DeviceQueue m_presentQueue;
+
+	PhysicalDeviceWrapper m_assocPhysicalDevice;
 
 	vk::UniqueCommandPool m_graphicsCommandPool;
 	vk::UniqueCommandPool m_transferCommandPool;
@@ -26,11 +32,11 @@ class Device : public vk::Device {
 	vk::UniqueCommandBuffer m_transferCommandBuffer;
 	vk::UniqueCommandBuffer m_graphicsCommandBuffer;
 
-public:
-	Device(vk::Device handle, PhysicalDevice* physicalDevice);
-	~Device();
 
-	PhysicalDevice* GetPhysicalDevice() const { return m_assocPhysicalDevice; }
+public:
+	void Init(const PhysicalDeviceWrapper& physicalDevice, std::vector<const char*> deviceExtensions);
+
+	PhysicalDeviceWrapper& GetPhysicalDevice() { return m_assocPhysicalDevice; }
 
 	vk::CommandPool GetGraphicsCommandPool() const { return m_graphicsCommandPool.get(); }
 	vk::CommandPool GetTransferCommandPool() const { return m_transferCommandPool.get(); }
@@ -54,13 +60,9 @@ public:
 	void TransitionImageLayout(
 		vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
-	vk::UniqueImageView CreateImageView(vk::Image image, vk::Format format);
-
-	vk::Result Present(const vk::PresentInfoKHR& info);
-	vk::Result SubmitGraphics(uint32 submitCount, vk::SubmitInfo* pSubmits, vk::Fence fence);
-
-	vk::Queue GetGraphicsQueue() const { return m_graphicsQueue; }
-	vk::Queue GetTransferQueue() const { return m_transferQueue; }
+	DeviceQueue GetGraphicsQueue() const { return m_graphicsQueue; }
+	DeviceQueue GetTransferQueue() const { return m_transferQueue; }
+	DeviceQueue GetPresentQueue() const { return m_presentQueue; }
 
 	vk::CommandBuffer GetTransferCommandBuffer() const { return m_transferCommandBuffer.get(); }
 };

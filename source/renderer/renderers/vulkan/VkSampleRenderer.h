@@ -1,6 +1,6 @@
 #pragma once
-#include "renderer/renderers/vulkan/InstanceLayer.h"
-#include "renderer/renderers/vulkan/Device.h"
+#include "renderer/renderers/vulkan/InstanceWrapper.h"
+#include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "renderer/renderers/vulkan/Swapchain.h"
 #include "renderer/renderers/vulkan/GraphicsPipeline.h"
 #include "renderer/renderers/vulkan/Descriptors.h"
@@ -16,10 +16,13 @@ namespace vlkn {
 
 class VkSampleRenderer : public Renderer {
 	friend class ImguiImpl;
+	// TODO: fix issues when destroying renderer (see validation layers)
+	// wrappers
+	InstanceWrapper m_instance;
+	DeviceWrapper m_device;
+
 
 	// high level parts
-	std::unique_ptr<InstanceLayer> m_instanceLayer;
-	std::unique_ptr<Device> m_device;
 	std::unique_ptr<Swapchain> m_swapchain;
 	std::unique_ptr<GraphicsPipeline> m_graphicsPipeline;
 	std::unique_ptr<Descriptors> m_descriptors;
@@ -27,12 +30,15 @@ class VkSampleRenderer : public Renderer {
 	// data
 	std::vector<std::unique_ptr<Model>> m_models;
 
+
 	// render commands
 	std::vector<vk::CommandBuffer> m_renderCommandBuffers;
 
 	// sync objects
 	vk::UniqueSemaphore m_imageAvailableSemaphore;
 	vk::UniqueSemaphore m_renderFinishedSemaphore;
+
+	void CreateGeometry();
 
 	// WIP : handle resizing explicitly in case there are drivers
 	// that do not report swap chain incompatibilities correctly
