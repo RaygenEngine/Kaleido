@@ -51,5 +51,8 @@ public:
 
 	// Note that if you override this you HAVE to delete the the given window* yourself, unless you can provide a valid
 	// surface without changing it.
-	virtual std::function<void(WindowType*&)> GetRecreateWindowFunction() { return {}; }
+	// Your function can return a "late" deleter for the old window. (otherwise an empty std::function) The late deleter
+	// gets run after the first frame has been rendered to the new window. This enables the code to perform smooth
+	// transitions between renderers.
+	virtual std::function<std::function<void()>(WindowType*&)> GetRecreateWindowFunction() { return {}; }
 };

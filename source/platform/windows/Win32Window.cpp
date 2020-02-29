@@ -344,7 +344,7 @@ LRESULT CALLBACK Win32Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 	return result;
 }
 
-void Win32Window::RecreateWindow(WindowType*& currentWindow)
+std::function<void()> Win32Window::RecreateWindow(WindowType*& currentWindow)
 {
 	Win32Window* prevWindow = dynamic_cast<Win32Window*>(currentWindow);
 	CLOG_ABORT(!prevWindow, "Attempting to recreate window with wrong window type.");
@@ -387,20 +387,37 @@ void Win32Window::RecreateWindow(WindowType*& currentWindow)
 
 	// A bit hacky, we assign the proper window as "MainWindow" temporarily to circumvent how the event is handled.
 	currentWindow = newWindow;
-	currentWindow->Show();
+	newWindow->m_width = inf.rcClient.right - inf.rcClient.left;
+	newWindow->m_height = inf.rcClient.bottom - inf.rcClient.top;
+	Event::OnWindowResize.Broadcast(newWindow->m_width, newWindow->m_height);
+
+	// "Show" the new window in background.
+	::SetWindowPos(
+		newWindow->m_hWnd, prevWindow->m_hWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+	::UpdateWindow(newWindow->m_hWnd);
 	SetWindowPlacement(newWindow->m_hWnd, &placement);
 
-	currentWindow = prevWindow;
-	prevWindow->Hide();
-	prevWindow->Destroy();
+	// Do not hide the window here (because it will not draw). The old window should still be on top of the new one.
 
+	// This lambda body runs at the end of main loop (where the renderer will have already presented one frame)
+	return [&currentWindow, newWindow, prevWindow, placement]() {
+		currentWindow = prevWindow;
+		// Bring to front the new winow, before destroying the old one, this hides OS animations from playing on top of
+		// the viewport.
+		::SetWindowPos(prevWindow->m_hWnd, newWindow->m_hWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		// Now we can hide and destroy our window. Our handler will know about the window as active because we set is as
+		// "current window" temporarily.
+		prevWindow->Hide();
+		prevWindow->Destroy();
+		delete prevWindow;
 
-	delete prevWindow;
-	currentWindow = newWindow;
+		// Reset engine's MainWindow to the newWindow;
+		currentWindow = newWindow;
+	};
 }
 
 
-std::function<void(WindowType*&)> Win32Window::GetRecreateWindowFunction()
+std::function<std::function<void()>(WindowType*&)> Win32Window::GetRecreateWindowFunction()
 {
 	return { RecreateWindow };
 }

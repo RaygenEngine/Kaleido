@@ -152,6 +152,11 @@ void Engine::ReportFrameDrawn()
 		LOG_WARN("Init to frame took: {} ms", m_initToFrameTimer.Get<ch::milliseconds>());
 		hasFrameReport = true;
 	}
+
+	if (m_lateWindowDeleter) {
+		m_lateWindowDeleter();
+		m_lateWindowDeleter = {};
+	}
 }
 
 void Engine::NextRenderer()
@@ -200,7 +205,7 @@ void Engine::DeinitEngine()
 
 void Engine::RemakeWindow()
 {
-	std::function<void(WindowType*&)> func = m_window->GetRecreateWindowFunction();
+	std::function<std::function<void()>(WindowType*&)> func = m_window->GetRecreateWindowFunction();
 	if (!func) {
 		m_window->Hide();
 		m_window->Destroy();
@@ -209,7 +214,6 @@ void Engine::RemakeWindow()
 		m_window->Show();
 	}
 	else {
-
-		func(m_window);
+		m_lateWindowDeleter = func(m_window);
 	}
 }
