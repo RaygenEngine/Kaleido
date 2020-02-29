@@ -39,5 +39,6 @@ public:
 	vk::DescriptorPool GetDescriptorPool() { return m_descriptorPools.back().get(); }
 	std::vector<vk::Buffer> GetUniformBuffers() { return vk::uniqueToRaw(m_uniformBuffers); }
 	std::vector<vk::DeviceMemory> GetUniformBuffersMemory() { return vk::uniqueToRaw(m_uniformBuffersMemory); }
+	void ClearPools();
 };
 } // namespace vlkn

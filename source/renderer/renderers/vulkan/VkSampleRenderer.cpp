@@ -20,14 +20,14 @@ namespace vlkn {
 VkSampleRenderer::~VkSampleRenderer()
 {
 	m_device->waitIdle();
-
-	Engine::Get().m_remakeWindow = true;
 }
 
 void VkSampleRenderer::CreateGeometry()
 {
 	auto world = Engine::GetWorld();
 	m_models.clear();
+	m_descriptors->ClearPools();
+	::ImguiImpl::InitVulkan();
 
 	for (auto geomNode : world->GetNodeIterator<GeometryNode>()) {
 
@@ -135,7 +135,6 @@ void VkSampleRenderer::Init(HWND assochWnd, HINSTANCE instance)
 	m_imageAvailableSemaphore = m_device->createSemaphoreUnique({});
 	m_renderFinishedSemaphore = m_device->createSemaphoreUnique({});
 
-	::ImguiImpl::InitVulkan();
 } // namespace vk
 
 bool VkSampleRenderer::SupportsEditor()
