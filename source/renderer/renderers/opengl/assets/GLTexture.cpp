@@ -38,30 +38,9 @@ void GLTexture::Load()
 
 	const auto GetTextureSetup = [&](bool isLinear, bool isHdr, int32 components) -> TextureSetup {
 		TextureSetup ts{};
-
-		switch (components) {
-			case 1:
-				ts.internalformat = (!isHdr ? GL_RED : GL_R32F);
-				ts.format = GL_RED;
-				break;
-			case 2:
-				ts.internalformat = (!isHdr ? GL_RG : GL_RG32F);
-				ts.format = GL_RG;
-				break;
-			case 3:
-				ts.internalformat = (!isHdr ? (isLinear ? GL_RGB : GL_SRGB8) : (isLinear ? GL_RGB32F : GL_SRGB));
-				ts.format = GL_RGB;
-				break;
-			case 4:
-				ts.internalformat
-					= (!isHdr ? (isLinear ? GL_RGBA : GL_SRGB8_ALPHA8) : (isLinear ? GL_RGBA32F : GL_SRGB_ALPHA));
-				ts.format = GL_RGBA;
-				break;
-			default: LOG_ABORT("Components cannot be more than 4");
-		}
-
+		ts.internalformat = (!isHdr ? (isLinear ? GL_RGBA : GL_SRGB8_ALPHA8) : (isLinear ? GL_RGBA32F : GL_SRGB_ALPHA));
+		ts.format = GL_RGBA;
 		ts.type = (!isHdr ? GL_UNSIGNED_BYTE : GL_FLOAT);
-
 		return ts;
 	};
 

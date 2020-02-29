@@ -86,9 +86,9 @@ void Engine::SwitchRenderer(size_t registrationIndex)
 
 	static bool firstRun = true;
 	if (!firstRun) {
-		firstRun = false;
 		RemakeWindow();
 	}
+	firstRun = false;
 
 
 	m_currentRenderer = registrationIndex;
@@ -97,7 +97,9 @@ void Engine::SwitchRenderer(size_t registrationIndex)
 
 	LOG_REPORT("Switched to renderer: {}", eng.m_rendererRegistrations[registrationIndex].name);
 
+
 	eng.m_renderer->Init(eng.m_window->GetHWND(), eng.m_window->GetHInstance());
+
 	eng.m_renderer->SupportsEditor() ? ActivateEditor() : DeactivateEditor();
 }
 

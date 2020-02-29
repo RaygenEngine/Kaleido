@@ -56,7 +56,7 @@ void SetStyle()
 	ImGui::GetIO().Fonts->AddFontFromFileTTF("engine-data/fonts/UbuntuMonoRegular.ttf", 14, nullptr, ranges);
 
 	ImGui::GetIO().Fonts->Build();
-} // namespace imguisyle
+}
 } // namespace imguisyle
 void ImguiImpl::InitContext()
 {
@@ -69,12 +69,18 @@ void ImguiImpl::InitContext()
 	ImGui::StyleColorsDark();
 	imguisyle::SetStyle();
 
-	ImGui_ImplWin32_Init(Engine::GetMainWindow()->GetHWND());
+	s_windowHandle = Engine::GetMainWindow()->GetHWND();
+	ImGui_ImplWin32_Init(s_windowHandle);
 	ImGui::GetIO().IniFilename = "EditorImgui.ini";
 }
 
 void ImguiImpl::NewFrame()
 {
+	auto currentHandle = Engine::GetMainWindow()->GetHWND();
+	if (currentHandle != s_windowHandle) {
+		UpdateWindow(currentHandle);
+		s_windowHandle = currentHandle;
+	}
 	if (dynamic_cast<ogl::GLEditorRenderer*>(Engine::GetRenderer())) {
 		ImGui_ImplOpenGL3_NewFrame();
 	}
@@ -217,6 +223,11 @@ void ImguiImpl::RenderVulkan(vk::CommandBuffer* drawCommandBuffer)
 void ImguiImpl::CleanupVulkan()
 {
 	ImGui_ImplVulkan_Shutdown();
+}
+
+void ImguiImpl::UpdateWindow(HWND hWnd)
+{
+	ImGui_ImplWin32_Init(hWnd);
 }
 
 LRESULT ImguiImpl::WndProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -928,22 +939,22 @@ bool ImGui_ImplVulkan_CreateDeviceObjects()
 		check_vk_result(err);
 	}
 
-	if (!g_PipelineLayout) {
-		// Constants: we are using 'vec2 offset' and 'vec2 scale' instead of a full 3d projection matrix
-		VkPushConstantRange push_constants[1] = {};
-		push_constants[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		push_constants[0].offset = sizeof(float) * 0;
-		push_constants[0].size = sizeof(float) * 4;
-		VkDescriptorSetLayout set_layout[1] = { g_DescriptorSetLayout };
-		VkPipelineLayoutCreateInfo layout_info = {};
-		layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		layout_info.setLayoutCount = 1;
-		layout_info.pSetLayouts = set_layout;
-		layout_info.pushConstantRangeCount = 1;
-		layout_info.pPushConstantRanges = push_constants;
-		err = vkCreatePipelineLayout(v->Device, &layout_info, v->Allocator, &g_PipelineLayout);
-		check_vk_result(err);
-	}
+	// if (!g_PipelineLayout) {
+	// Constants: we are using 'vec2 offset' and 'vec2 scale' instead of a full 3d projection matrix
+	VkPushConstantRange push_constants[1] = {};
+	push_constants[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	push_constants[0].offset = sizeof(float) * 0;
+	push_constants[0].size = sizeof(float) * 4;
+	VkDescriptorSetLayout set_layout[1] = { g_DescriptorSetLayout };
+	VkPipelineLayoutCreateInfo layout_info = {};
+	layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	layout_info.setLayoutCount = 1;
+	layout_info.pSetLayouts = set_layout;
+	layout_info.pushConstantRangeCount = 1;
+	layout_info.pPushConstantRanges = push_constants;
+	err = vkCreatePipelineLayout(v->Device, &layout_info, v->Allocator, &g_PipelineLayout);
+	check_vk_result(err);
+	//}
 
 	VkPipelineShaderStageCreateInfo stage[2] = {};
 	stage[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
