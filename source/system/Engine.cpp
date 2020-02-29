@@ -66,7 +66,6 @@ void Engine::CreateWorldFromFile(const std::string& filename)
 
 void Engine::SwitchRenderer(size_t registrationIndex)
 {
-	// WIP
 	Engine& eng = Engine::Get();
 
 	Engine::GetMainWindow()->DrawLoading();
@@ -86,12 +85,9 @@ void Engine::SwitchRenderer(size_t registrationIndex)
 	delete eng.m_renderer;
 
 	static bool firstRun = true;
-	if (m_remakeWindow && !firstRun) {
+	if (!firstRun) {
 		firstRun = false;
-		delete m_window;
-		m_window = m_app->CreateAppWindow();
-		m_window->Show();
-		m_remakeWindow = false;
+		RemakeWindow();
 	}
 
 
@@ -101,9 +97,8 @@ void Engine::SwitchRenderer(size_t registrationIndex)
 
 	LOG_REPORT("Switched to renderer: {}", eng.m_rendererRegistrations[registrationIndex].name);
 
-	eng.m_renderer->SupportsEditor() ? ActivateEditor() : DeactivateEditor();
-
 	eng.m_renderer->Init(eng.m_window->GetHWND(), eng.m_window->GetHInstance());
+	eng.m_renderer->SupportsEditor() ? ActivateEditor() : DeactivateEditor();
 }
 
 bool Engine::HasCmdArgument(const std::string& argument)
@@ -199,4 +194,13 @@ void Engine::DeinitEngine()
 
 	delete m_assetManager;
 	delete m_input;
+}
+
+void Engine::RemakeWindow()
+{
+	m_window->Hide();
+	m_window->Destroy();
+	delete m_window;
+	m_window = m_app->CreateAppWindow();
+	m_window->Show();
 }

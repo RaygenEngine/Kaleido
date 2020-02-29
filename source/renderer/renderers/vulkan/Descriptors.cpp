@@ -69,9 +69,14 @@ std::vector<vk::DescriptorSet> Descriptors::CreateDescriptorSets()
 		.setPSetLayouts(layouts.data());
 
 	m_availableSetCount -= m_assocSwapchain->GetImageCount();
-
-	// WIP: are those destructed?
 	return m_assocDevice->allocateDescriptorSets(allocInfo);
+}
+
+void Descriptors::ClearPools()
+{
+	m_descriptorPools.clear();
+	m_descriptorPools.emplace_back(CreateDescriptorPool(m_assocDevice, m_assocSwapchain->GetImageCount()));
+	m_availableSetCount = POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount();
 }
 
 } // namespace vlkn

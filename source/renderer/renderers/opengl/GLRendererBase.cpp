@@ -58,8 +58,6 @@ GLRendererBase::~GLRendererBase()
 	CLOG_ERROR(!wglMakeCurrent(m_hdc, NULL), "Failed to make current");
 	CLOG_ERROR(!wglDeleteContext(m_hglrc), "Failed to delete");
 	CLOG_ERROR(ReleaseDC(m_assochWnd, m_hdc) != 1, "Failed to release");
-	// gladUnloadGL();
-	Engine::Get().m_remakeWindow = true;
 }
 
 void GLRendererBase::Init(HWND assochWnd, HINSTANCE instance)

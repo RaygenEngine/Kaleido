@@ -46,8 +46,6 @@ public:
 		return instance;
 	}
 
-	bool m_remakeWindow{ true };
-
 	// Not guaranteed to exist at all times.
 	[[nodiscard]] static World* GetWorld() { return Get().m_world; }
 
@@ -189,8 +187,8 @@ public:
 	[[nodiscard]] static float GetFPS();
 
 	void ReportFrameDrawn();
-
 	void NextRenderer();
+	void RemakeWindow();
 
 	[[nodiscard]] size_t GetActiveRendererIndex() const { return m_currentRenderer; }
 
