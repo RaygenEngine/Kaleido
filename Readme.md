@@ -10,11 +10,12 @@ It's primary focus is to support the creation of multiple renderers that can be 
 ### Rendering
 
 * Compile time registration of multiple renderers of different rendering contexts (renderer abstraction)
-* Hot-swapping between renderers at runtime
+* Hot-swapping between renderers of different contexts at runtime
 * Generic GPU asset caching 
 * Sample OpenGL PBR (direct lighting) renderers
 * Runtime shader editing and reloading (OpenGL)
 * Support for rendering optimization techniques (eg. frustum culling)
+* Sample Vulkan renderer (albedo only)
 
 ### World & Editor
 * Extensible type-system with reflection support for user types
@@ -29,10 +30,6 @@ It's primary focus is to support the creation of multiple renderers that can be 
 * Extensible asset loaders
 * Support for GLTF, Generic JSON, PNG, JPG, BMP
 
-## WIP: 
-* Vulkan-based sample renderers
-* Optimized context switching and reloading of GPU assets
-* Substructure for VR rendering
 
 ## Screenshots
 
@@ -48,7 +45,7 @@ CMake 3.11 is required.
 ## Getting started
 
 ```
- git clone --recursive https://github.com/renoras/kaleido
+ git clone --recursive https://github.com/RaygenGroup/kaleido
  cd kaleido
  mkdir build
  cd build
@@ -67,6 +64,8 @@ Then just build & run. Default assets are included for the preview scene.
 * [nlohmann/json](https://github.com/nlohmann/json)
 * [magic_enum](https://github.com/Neargye/magic_enum)
 * [glad](https://github.com/Dav1dde/glad)
+* [imfilebrowser](https://github.com/AirGuanZ/imgui-filebrowser)
+* [minimal-ti] (https://github.com/katagis/minimal-ti)
 
 ## Authors
 
