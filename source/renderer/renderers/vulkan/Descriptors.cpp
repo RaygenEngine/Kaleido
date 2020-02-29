@@ -8,7 +8,7 @@
 #include "renderer/renderers/vulkan/Texture.h"
 
 
-#define POOL_PER_IMAGE_SET_COUNT 10
+#define POOL_PER_IMAGE_SET_COUNT 100
 
 namespace vlkn {
 
@@ -55,9 +55,9 @@ std::vector<vk::DescriptorSet> Descriptors::CreateDescriptorSets()
 {
 	// TODO: This system should check if each active pool for allocation space, (also free pool if empty?)
 	if (m_availableSetCount < POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount()) {
-		LOG_WARN("Requested descriptor set count is bigger than the available set count of current descriptor pool");
+		LOG_INFO("Allocating another descriptor pool.");
 		m_descriptorPools.emplace_back(CreateDescriptorPool(m_assocDevice, m_assocSwapchain->GetImageCount()));
-		m_availableSetCount = POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount();
+		m_availableSetCount += POOL_PER_IMAGE_SET_COUNT * m_assocSwapchain->GetImageCount();
 	}
 
 	std::vector<vk::DescriptorSetLayout> layouts(

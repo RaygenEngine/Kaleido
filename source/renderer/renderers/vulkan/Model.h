@@ -2,7 +2,7 @@
 
 #include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "asset/pods/ModelPod.h"
-
+#include "world/nodes/geometry/GeometryNode.h"
 #include "vulkan/vulkan.hpp"
 
 namespace vlkn {
@@ -41,6 +41,7 @@ public:
 
 	const std::vector<GeometryGroup>& GetGeometryGroups() const { return m_geometryGroups; }
 
-	glm::mat4 m_transform;
+	// Prefer using the observer system instead of direct pointers.
+	GeometryNode* m_model;
 };
 } // namespace vlkn
