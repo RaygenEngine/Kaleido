@@ -59,7 +59,7 @@ public:
 	void GenerateXInputControllerMessages();
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	static void RecreateWindow(WindowType*& currentWindow);
+	static std::function<void()> RecreateWindow(WindowType*& currentWindow);
 
-	std::function<void(WindowType*&)> GetRecreateWindowFunction() override;
+	std::function<std::function<void()>(WindowType*&)> GetRecreateWindowFunction() override;
 };

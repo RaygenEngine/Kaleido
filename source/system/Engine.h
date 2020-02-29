@@ -140,6 +140,8 @@ private:
 		return index;
 	}
 
+	std::function<void()> m_lateWindowDeleter;
+
 public:
 	// Init the internal engine systems.
 	// You MUST run this to properly init the engine
