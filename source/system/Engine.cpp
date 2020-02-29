@@ -200,9 +200,16 @@ void Engine::DeinitEngine()
 
 void Engine::RemakeWindow()
 {
-	m_window->Hide();
-	m_window->Destroy();
-	delete m_window;
-	m_window = m_app->CreateAppWindow();
-	m_window->Show();
+	std::function<void(WindowType*&)> func = m_window->GetRecreateWindowFunction();
+	if (!func) {
+		m_window->Hide();
+		m_window->Destroy();
+		delete m_window;
+		m_window = m_app->CreateAppWindow();
+		m_window->Show();
+	}
+	else {
+
+		func(m_window);
+	}
 }
