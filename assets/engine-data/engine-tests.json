@@ -78,7 +78,7 @@
             "y": 0.7268649339675903,
             "z": 0.7268649339675903
         },
-        "skybox": "/import-data/skybox/alps.cubemap.json",
+        "skybox": "/engine-data/skybox/stormy-days.cubemap.json",
         "~children": []
     },
     {
