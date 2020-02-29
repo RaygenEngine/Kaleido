@@ -343,3 +343,64 @@ LRESULT CALLBACK Win32Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 
 	return result;
 }
+
+void Win32Window::RecreateWindow(WindowType*& currentWindow)
+{
+	Win32Window* prevWindow = dynamic_cast<Win32Window*>(currentWindow);
+	CLOG_ABORT(!prevWindow, "Attempting to recreate window with wrong window type.");
+
+	Win32Window* newWindow = new Win32Window();
+	HWND oldHandle = prevWindow->GetHWND();
+
+	WINDOWINFO inf{}; // Clone info
+	inf.cbSize = sizeof(WINDOWINFO);
+	GetWindowInfo(oldHandle, &inf);
+
+	newWindow->m_wcex = prevWindow->m_wcex; // Clone class
+
+	TCHAR str[256];
+	GetWindowText(oldHandle, str, 256);
+
+
+	WINDOWPLACEMENT placement{};
+	placement.length = sizeof(WINDOWPLACEMENT);
+	GetWindowPlacement(oldHandle, &placement);
+
+
+	// Setup window initialization attributes for new window.
+	CREATESTRUCT cs;
+	ZeroMemory(&cs, sizeof(cs));
+
+	cs.x = inf.rcWindow.left;                       // Window X position
+	cs.y = inf.rcWindow.top;                        // Window Y position
+	cs.cx = inf.rcWindow.right - inf.rcWindow.left; // Window width
+	cs.cy = inf.rcWindow.bottom - inf.rcWindow.top; // Window height
+	cs.hInstance = newWindow->m_wcex.hInstance;     // Window instance.
+	cs.lpszClass = newWindow->m_wcex.lpszClassName; // Window class name
+	cs.lpszName = str;                              // Window title
+	cs.style = inf.dwStyle;                         // Window style
+
+
+	// Create the window.
+	newWindow->m_hWnd = ::CreateWindowEx(cs.dwExStyle, cs.lpszClass, cs.lpszName, cs.style, cs.x, cs.y, cs.cx, cs.cy,
+		cs.hwndParent, cs.hMenu, cs.hInstance, cs.lpCreateParams);
+
+	// A bit hacky, we assign the proper window as "MainWindow" temporarily to circumvent how the event is handled.
+	currentWindow = newWindow;
+	currentWindow->Show();
+	SetWindowPlacement(newWindow->m_hWnd, &placement);
+
+	currentWindow = prevWindow;
+	prevWindow->Hide();
+	prevWindow->Destroy();
+
+
+	delete prevWindow;
+	currentWindow = newWindow;
+}
+
+
+std::function<void(WindowType*&)> Win32Window::GetRecreateWindowFunction()
+{
+	return { RecreateWindow };
+}

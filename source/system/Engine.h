@@ -1,6 +1,6 @@
 #pragma once
-class Win32Window;
-using WindowType = Win32Window;
+#include "system/Timer.h"
+#include "platform/Window.h"
 
 class AssetManager;
 class Renderer;
@@ -12,8 +12,6 @@ class Editor;
 class AppBase;
 
 class NodeFactory;
-
-#include "system/Timer.h"
 
 
 class Engine {

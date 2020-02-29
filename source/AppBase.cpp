@@ -123,14 +123,10 @@ void AppBase::RegisterRenderers()
 {
 	// NOTE:
 	// Default behavior for an app is to start the first primary registered here.
-
-	// WIP: use base renderer for context tests
-	// TODO: fix issue when first renderer is vulkan, opengl fails
-	Engine::RegisterPrimaryRenderer<vlkn::VkSampleRenderer>();
-
 	Engine::RegisterPrimaryRenderer<ogl::GLDeferredRenderer>();
-	Engine::RegisterPrimaryRenderer<ogl::GLForwardRenderer>();
 
+	Engine::RegisterPrimaryRenderer<vlkn::VkSampleRenderer>();
+	Engine::RegisterPrimaryRenderer<ogl::GLForwardRenderer>();
 
 	// Non primary renderers are skipped when cycling through renderers but can be enabled from the editor menu
 	// Engine::RegisterRenderer<ogl::GLDOVRRenderer>();
