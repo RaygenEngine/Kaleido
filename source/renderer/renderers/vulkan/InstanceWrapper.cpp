@@ -94,13 +94,6 @@ void InstanceWrapper::Init(HWND assochWnd, HINSTANCE instance)
 
 	/* VULKAN_KEY_START */
 
-	// Use standard_validation meta layer that enables all recommended validation layers
-	std::vector<char const*> instanceLayerNames = { "VK_LAYER_KHRONOS_validation" };
-
-	if (!CheckLayers(instanceLayerNames, instanceLayerProperties)) {
-		LOG_ABORT("Set the environment variable VK_LAYER_PATH to point to the location of your layers");
-	}
-
 	std::vector<const char*> requiredExtensions
 		= { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_UTILS_EXTENSION_NAME };
 
@@ -117,8 +110,19 @@ void InstanceWrapper::Init(HWND assochWnd, HINSTANCE instance)
 		.setEnabledExtensionCount(static_cast<uint32>(requiredExtensions.size()))
 		.setPpEnabledExtensionNames(requiredExtensions.data());
 
-	createInfo.setEnabledLayerCount(static_cast<uint32>(instanceLayerNames.size()))
-		.setPpEnabledLayerNames(instanceLayerNames.data());
+
+	// Use standard_validation meta layer that enables all recommended validation layers
+	std::vector<char const*> instanceLayerNames = { "VK_LAYER_KHRONOS_validation" };
+
+	if (!CheckLayers(instanceLayerNames, instanceLayerProperties)) {
+		LOG_WARN(
+			"Validation layers not found. Set the environment variable VK_LAYER_PATH to point to the location of your "
+			"layers. Resuming without validation layers");
+	}
+	else {
+		createInfo.setEnabledLayerCount(static_cast<uint32>(instanceLayerNames.size()))
+			.setPpEnabledLayerNames(instanceLayerNames.data());
+	}
 
 
 	m_vkHandle = vk::createInstanceUnique(createInfo);
