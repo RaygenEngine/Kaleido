@@ -19,6 +19,7 @@ namespace vlkn {
 
 VkSampleRenderer::~VkSampleRenderer()
 {
+	::ImguiImpl::CleanupVulkan();
 	m_device->waitIdle();
 }
 

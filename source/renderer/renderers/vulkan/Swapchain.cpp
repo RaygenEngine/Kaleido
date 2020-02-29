@@ -7,7 +7,6 @@
 
 #include "system/Logger.h"
 
-#include <vulkan/vulkan_win32.h>
 
 namespace {
 struct SwapChainSupportDetails {

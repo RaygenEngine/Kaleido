@@ -23,6 +23,9 @@ public:
 	static void RenderVulkan(vk::CommandBuffer* drawCommandBuffer);
 	static void CleanupVulkan();
 
+	static void UpdateWindow(HWND hWnd);
 
 	static LRESULT WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	static inline HWND s_windowHandle;
 };
