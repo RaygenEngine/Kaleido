@@ -65,7 +65,7 @@ Then just build & run. Default assets are included for the preview scene.
 * [magic_enum](https://github.com/Neargye/magic_enum)
 * [glad](https://github.com/Dav1dde/glad)
 * [imfilebrowser](https://github.com/AirGuanZ/imgui-filebrowser)
-* [minimal-ti] (https://github.com/katagis/minimal-ti)
+* [minimal-ti](https://github.com/katagis/minimal-ti)
 
 ## Authors
 
