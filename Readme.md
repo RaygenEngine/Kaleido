@@ -2,8 +2,7 @@
 
 # Kaleido
 
-Kaleido is a graphics engine focused on renderer extensibility, written in modern C++17.
-It's primary focus is to support the creation of multiple renderers that can be hot-swapped in real-time, even while the scene is updating.
+Kaleido is a graphics engine written in C++17. Its primary focus is to support the creation of multiple renderers that can be hot-swapped in real-time, even while the scene is updating.
 
 ## Features
 
