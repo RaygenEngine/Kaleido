@@ -17,7 +17,7 @@ struct ImagePod : AssetPod {
 	int32 width{ 0 };
 	int32 height{ 0 };
 
-	// WIP: actual components
+	// TODO: actual components
 	int32 components{ 0 };
 
 	// use malloc and free

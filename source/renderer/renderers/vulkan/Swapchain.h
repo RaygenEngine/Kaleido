@@ -22,7 +22,7 @@ class Swapchain {
 	DeviceWrapper& m_assocDevice;
 	vk::SurfaceKHR m_assocSurface;
 
-	// WIP: depth image
+	// TODO: depth image
 	vk::UniqueImage m_depthImage;
 	vk::UniqueDeviceMemory m_depthImageMemory;
 	vk::UniqueImageView m_depthImageView;

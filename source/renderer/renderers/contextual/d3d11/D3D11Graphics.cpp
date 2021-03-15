@@ -2,7 +2,8 @@
 
 #include "renderer/renderers/contextual/d3d11/Error.h"
 
-#include "glm/gtc/type_ptr.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <d3d11.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "D3DCompiler.lib")
@@ -51,6 +52,7 @@ D3D11Graphics::D3D11Graphics(HWND hWnd)
 	// bind depth state
 	m_context->OMSetDepthStencilState(pDSState.Get(), 1u);
 
+
 	// create depth stensil texture
 	WRL::ComPtr<ID3D11Texture2D> pDepthStencil;
 	D3D11_TEXTURE2D_DESC descDepth = {};
@@ -74,6 +76,23 @@ D3D11Graphics::D3D11Graphics(HWND hWnd)
 
 	// bind depth stensil view to OM
 	m_context->OMSetRenderTargets(1u, m_rtv.GetAddressOf(), m_dsv.Get());
+
+	D3D11_RASTERIZER_DESC rd;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.FrontCounterClockwise = TRUE;
+	rd.DepthBias = 0;
+	rd.DepthBiasClamp = 0.0f;
+	rd.SlopeScaledDepthBias = 0.0f;
+	rd.DepthClipEnable = TRUE;
+	rd.ScissorEnable = FALSE;
+	rd.MultisampleEnable = FALSE;
+	rd.AntialiasedLineEnable = FALSE;
+
+	WRL::ComPtr<ID3D11RasterizerState> pRasterState;
+	ABORT_IF_FAILED(m_device->CreateRasterizerState(&rd, &pRasterState));
+
+	m_context->RSSetState(pRasterState.Get());
 
 	// configure viewport
 	D3D11_VIEWPORT vp;

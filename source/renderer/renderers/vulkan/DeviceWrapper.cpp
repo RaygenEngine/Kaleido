@@ -40,7 +40,7 @@ void DeviceWrapper::Init(const PhysicalDeviceWrapper& physicalDevice, std::vecto
 
 	// TODO: (get from assoc)
 	vk::PhysicalDeviceFeatures deviceFeatures{};
-	// WIP: check if supported by the pd..
+	// TODO: check if supported by the pd..
 	deviceFeatures.setSamplerAnisotropy(VK_TRUE);
 
 	vk::DeviceCreateInfo deviceCreateInfo{};
@@ -185,7 +185,7 @@ void DeviceWrapper::CreateImage(uint32 width, uint32 height, vk::Format format, 
 		.setInitialLayout(vk::ImageLayout::eUndefined)
 		.setUsage(usage)
 		.setSamples(vk::SampleCountFlagBits::e1)
-		// WIP: test
+		// TODO: test
 		.setSharingMode(vk::SharingMode::eExclusive);
 
 	image = m_vkHandle->createImageUnique(imageInfo);
@@ -270,7 +270,7 @@ void DeviceWrapper::TransitionImageLayout(
 		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
 		destinationStage = vk::PipelineStageFlagBits::eTransfer;
 
-		// WIP: is this an implicit onwership of the transfer queue?
+		// TODO: is this an implicit onwership of the transfer queue?
 		// it should be explicit
 		barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
 		barrier.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
@@ -284,7 +284,7 @@ void DeviceWrapper::TransitionImageLayout(
 		sourceStage = vk::PipelineStageFlagBits::eTransfer;
 		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
 
-		// WIP: this should be a transition?
+		// TODO: this should be a transition?
 		barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
 		barrier.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED);
 	}

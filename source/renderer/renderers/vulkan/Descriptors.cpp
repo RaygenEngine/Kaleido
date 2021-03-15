@@ -26,7 +26,7 @@ vk::UniqueDescriptorPool CreateDescriptorPool(DeviceWrapper& device, uint32 setC
 	return device->createDescriptorPoolUnique(poolInfo);
 }
 
-// WIP: descriptor set should describe
+// TODO: descriptor set should describe
 // 1. material layout (samplers etc)
 // 2. other uniforms
 Descriptors::Descriptors(DeviceWrapper& device, Swapchain* swapchain, GraphicsPipeline* graphicsPipeline)

@@ -16,7 +16,7 @@ struct UniformBufferObject {
 };
 
 
-// WIP: rename (uniform descriptors??)
+// TODO: rename (uniform descriptors??)
 class Descriptors {
 
 	std::vector<vk::UniqueDescriptorPool> m_descriptorPools;

@@ -26,7 +26,7 @@ void PhysicalDeviceWrapper::Init(vk::PhysicalDevice handle, vk::SurfaceKHR surfa
 		auto supportsPresent = m_vkHandle.getSurfaceSupportKHR(i, surface);
 
 
-		// WIP: the more functionality a queue supports the lesser the score
+		// TODO: the more functionality a queue supports the lesser the score
 		queueFamily.rating /= float(((4 * bool(qFP.queueFlags & vk::QueueFlagBits::eGraphics))
 									 + (4 * bool(qFP.queueFlags & vk::QueueFlagBits::eCompute))
 									 + bool(qFP.queueFlags & vk::QueueFlagBits::eTransfer) + supportsPresent));
@@ -67,7 +67,6 @@ void PhysicalDeviceWrapper::Init(vk::PhysicalDevice handle, vk::SurfaceKHR surfa
 	// indices.IsComplete() && CheckNeededDeviceProperties(device) && CheckIfDeviceExtensionsAreAvailable(device)
 	//	&& CheckSwapChainSupport(device, surface);
 
-	// WIP:
 
 	// TODO: this device must support presentation
 	if (m_presentFamilies.empty()) {

@@ -31,6 +31,3 @@ namespace fs = std::filesystem;
 
 #include <wrl.h>
 namespace WRL = Microsoft::WRL;
-
-#include <DirectXMath.h>
-namespace dx = DirectX;

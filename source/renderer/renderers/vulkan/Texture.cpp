@@ -10,7 +10,7 @@ Texture::Texture(DeviceWrapper& device, PodHandle<TexturePod> handle)
 
 	auto data = handle.Lock();
 
-	// WIP: get first image for now
+	// TODO: get first image for now
 	auto imgData = data->images[0].Lock();
 
 	// if(isHdr) data -> float* else data -> byte*
@@ -31,7 +31,7 @@ Texture::Texture(DeviceWrapper& device, PodHandle<TexturePod> handle)
 
 	vk::Format format = imgData->isHdr ? vk::Format::eR32G32B32A32Sfloat : vk::Format::eR8G8B8A8Srgb;
 
-	// WIP: based on texture
+	// TODO: based on texture
 	device.CreateImage(imgData->width, imgData->height, format, vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 		vk::MemoryPropertyFlagBits::eDeviceLocal, m_handle, m_memory);
@@ -60,7 +60,7 @@ Texture::Texture(DeviceWrapper& device, PodHandle<TexturePod> handle)
 	m_view = device->createImageViewUnique(viewInfo);
 
 	// sampler
-	// WIP: values should be chosen based on Texture pod
+	// TODO: values should be chosen based on Texture pod
 	vk::SamplerCreateInfo samplerInfo{};
 	samplerInfo.setMagFilter(vk::Filter::eLinear)
 		.setMinFilter(vk::Filter::eLinear)

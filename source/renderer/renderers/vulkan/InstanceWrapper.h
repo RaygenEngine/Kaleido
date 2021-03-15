@@ -12,7 +12,7 @@ class InstanceWrapper : public VkUniqueObjectWrapper<vk::UniqueInstance> {
 	// TODO: currently can't add as unique
 	vk::SurfaceKHR m_surface;
 
-	// WIP: change mem management here
+	// TODO: change mem management here
 	std::vector<PhysicalDeviceWrapper> m_capablePhysicalDevices;
 
 	vk::UniqueDebugUtilsMessengerEXT m_debugUtilsMessenger;

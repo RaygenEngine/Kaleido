@@ -32,7 +32,7 @@ protected:
 		return m_observers;
 	}
 
-	// WIP: Cleanup unused stuff, decide on "Singleton" Observer (maybe even auto-add them?)
+	// TODO: Cleanup unused stuff, decide on "Singleton" Observer (maybe even auto-add them?)
 	// TODO: custom dirtyFlagset structure?
 	// PERF: remove_swap for vectors and fast iterations
 	// DOC: document the final version

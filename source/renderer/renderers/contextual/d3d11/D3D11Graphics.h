@@ -5,6 +5,7 @@
 class D3D11Graphics {
 
 	friend class ImguiImpl;
+	friend class D3D11Bindable;
 
 public:
 	D3D11Graphics(HWND hWnd);

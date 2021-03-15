@@ -146,7 +146,7 @@ void InstanceWrapper::Init(HWND assochWnd, HINSTANCE instance)
 	m_debugUtilsMessenger = m_vkHandle->createDebugUtilsMessengerEXTUnique(
 		vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageFunc));
 
-	// create surface (WIP: currently C form)
+	// create surface (TODO: currently C form)
 	VkWin32SurfaceCreateInfoKHR win32SurfaceInfo = { VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR };
 	win32SurfaceInfo.hwnd = assochWnd;
 	win32SurfaceInfo.hinstance = instance;
@@ -177,7 +177,7 @@ PhysicalDeviceWrapper& InstanceWrapper::GetBestCapablePhysicalDevice()
 {
 	CLOG_ABORT(m_capablePhysicalDevices.empty(), "No capable physical device found for required vulkan rendering");
 
-	// WIP:
+	// TODO:
 	// auto it = std::max_element(m_capablePhysicalDevices.begin(), m_capablePhysicalDevices.end(),
 	//	[](std::unique_ptr<PhysicalDevice> a, std::unique_ptr<PhysicalDevice> b) {
 	//		return a->GetDeviceRating() < b->GetDeviceRating();

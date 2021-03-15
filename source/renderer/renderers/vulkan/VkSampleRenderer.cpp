@@ -111,7 +111,7 @@ void VkSampleRenderer::CreateRenderCommandBuffers()
 
 void VkSampleRenderer::Init(HWND assochWnd, HINSTANCE instance)
 {
-	// WIP: this is not renderer code ....
+	// TODO: this is not renderer code ....
 	m_instance.Init(assochWnd, instance);
 	auto& physicalDevice = m_instance.GetBestCapablePhysicalDevice();
 	m_device.Init(physicalDevice, { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_MAINTENANCE1_EXTENSION_NAME });
@@ -239,7 +239,7 @@ void VkSampleRenderer::DrawFrame()
 		default: LOG_ABORT("failed to acquire swap chain image!");
 	}
 
-	// WIP: UNIFORM BUFFER UPDATES
+	// TODO: UNIFORM BUFFER UPDATES
 	{
 		auto world = Engine::GetWorld();
 		auto camera = world->GetActiveCamera();
