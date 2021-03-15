@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLModel.h"
 
-#include "renderer/renderers/opengl/assets/GLModel.h"
 #include "renderer/renderers/opengl/GLUtil.h"
 #include "system/Engine.h"
 #include "asset/AssetManager.h"

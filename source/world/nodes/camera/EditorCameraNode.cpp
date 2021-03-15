@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "EditorCameraNode.h"
 
-#include "world/nodes/camera/EditorCameraNode.h"
 #include "system/Engine.h"
 #include "world/nodes/RootNode.h"
 #include "system/Input.h"

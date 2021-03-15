@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "CameraNode.h"
 
-#include "world/nodes/camera/CameraNode.h"
 #include "core/MathAux.h"
 
 void CameraNode::CalculateWorldAABB()

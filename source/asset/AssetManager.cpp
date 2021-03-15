@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "AssetManager.h"
 
-#include "asset/AssetManager.h"
 #include "reflection/PodTools.h"
 
 void AssetManager::Init(const fs::path& assetPath)

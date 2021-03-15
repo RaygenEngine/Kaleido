@@ -1,3 +1,1 @@
-#include "pch/pch.h"
-
-#include "world/nodes/RootNode.h"
+#include "RootNode.h"

@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLForwardRenderer.h"
 
-#include "renderer/renderers/opengl/forward/GLForwardRenderer.h"
 #include "renderer/renderers/opengl/assets/GLModel.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"

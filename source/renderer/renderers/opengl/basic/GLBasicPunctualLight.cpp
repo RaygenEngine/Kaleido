@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLBasicPunctualLight.h"
 
-#include "renderer/renderers/opengl/basic/GLBasicPunctualLight.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "asset/AssetManager.h"
 

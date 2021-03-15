@@ -1,4 +1,4 @@
-#include "pch/pch.h"
+#include "GLPreviewer.h"
 
 #include "platform/windows/Win32Window.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"

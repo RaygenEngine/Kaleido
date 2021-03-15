@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "DirectionalLightNode.h"
 
-#include "world/nodes/light/DirectionalLightNode.h"
 #include "core/MathAux.h"
 
 void DirectionalLightNode::CalculateWorldAABB()

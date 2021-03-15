@@ -1,6 +1,6 @@
-#include "pch/pch.h"
+#include "Win32Window.h"
+
 #include "platform/windows/resources/WinResource.h"
-#include "platform/windows/Win32Window.h"
 #include "platform/windows/TranslateWin32VirtualKeys.h"
 #include "system/Input.h"
 #include "system/EngineEvents.h"

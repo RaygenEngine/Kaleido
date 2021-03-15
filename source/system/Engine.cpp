@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "Engine.h"
 
-#include "system/Engine.h"
 #include "system/Input.h"
 #include "AppBase.h"
 #include "asset/AssetManager.h"

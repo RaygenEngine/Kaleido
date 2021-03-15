@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLRendererBase.h"
 
-#include "renderer/renderers/opengl/GLRendererBase.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"
 #include "system/Input.h"

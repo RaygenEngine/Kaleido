@@ -1,17 +1,15 @@
-#include "pch/pch.h"
-
 #include "AppBase.h"
+
 #include "editor/Editor.h"
 #include "platform/windows/Win32Window.h"
 #include "renderer/renderers/opengl/deferred/GLDeferredRenderer.h"
 #include "renderer/renderers/opengl/forward/GLForwardRenderer.h"
-#include "renderer/renderers/opengl/dovr/GLDOVRRenderer.h"
+#include "renderer/renderers/vulkan/VkSampleRenderer.h"
 #include "system/Engine.h"
 #include "system/Input.h"
 #include "system/Logger.h"
 #include "world/NodeFactory.h"
 #include "world/World.h"
-#include "renderer\renderers\vulkan\VkSampleRenderer.h"
 
 
 AppBase::AppBase()
@@ -129,7 +127,6 @@ void AppBase::RegisterRenderers()
 	Engine::RegisterPrimaryRenderer<ogl::GLForwardRenderer>();
 
 	// Non primary renderers are skipped when cycling through renderers but can be enabled from the editor menu
-	// Engine::RegisterRenderer<ogl::GLDOVRRenderer>();
 }
 
 Win32Window* AppBase::CreateAppWindow()

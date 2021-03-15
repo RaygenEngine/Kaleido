@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "SpotLightNode.h"
 
-#include "world/nodes/light/SpotLightNode.h"
 #include "core/MathAux.h"
 
 void SpotLightNode::CalculateWorldAABB()

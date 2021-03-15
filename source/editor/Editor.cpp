@@ -1,28 +1,25 @@
-#include "pch/pch.h"
-
-#include "editor/Editor.h"
-#include "editor/imgui/ImguiImpl.h"
-#include "editor/NodeContextActions.h"
-#include "editor/PropertyEditor.h"
+#include "Editor.h"
 
 #include "asset/AssetManager.h"
 #include "asset/PodIncludes.h"
+#include "editor/PropertyEditor.h"
+#include "editor/DataStrings.h"
+#include "editor/imgui/ImguiImpl.h"
+#include "editor/imgui/ImguiUtil.h"
+#include "editor/NodeContextActions.h"
 #include "platform/windows/Win32Window.h"
 #include "reflection/PodTools.h"
 #include "reflection/ReflectionTools.h"
+#include "reflection/ReflEnum.h"
 #include "system/Engine.h"
 #include "system/EngineEvents.h"
+#include "system/Input.h"
+#include "world/NodeFactory.h"
 #include "world/nodes/camera/CameraNode.h"
+#include "world/nodes/geometry/GeometryNode.h"
 #include "world/nodes/Node.h"
 #include "world/nodes/RootNode.h"
 #include "world/World.h"
-#include "system/Input.h"
-#include "world/NodeFactory.h"
-
-#include "editor/imgui/ImguiUtil.h"
-#include "world/nodes/geometry/GeometryNode.h"
-#include "reflection/ReflEnum.h"
-#include "editor/DataStrings.h"
 
 #include <iostream>
 #include <set>

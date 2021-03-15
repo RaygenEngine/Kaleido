@@ -1,17 +1,15 @@
-#include "pch/pch.h"
+#include "PropertyEditor.h"
 
-#include "editor/PropertyEditor.h"
-
-#include "asset/PodHandle.h"
-#include "world/nodes/Node.h"
-#include "editor/Editor.h"
-#include "system/Engine.h"
-#include "reflection/ReflectionTools.h"
-#include "core/MathAux.h"
-#include "reflection/PodTools.h"
-#include "editor/imgui/ImguiUtil.h"
-#include "editor/DataStrings.h"
 #include "asset/AssetManager.h"
+#include "asset/PodHandle.h"
+#include "core/MathAux.h"
+#include "editor/DataStrings.h"
+#include "editor/Editor.h"
+#include "editor/imgui/ImguiUtil.h"
+#include "reflection/PodTools.h"
+#include "reflection/ReflectionTools.h"
+#include "system/Engine.h"
+#include "world/nodes/Node.h"
 #include <fstream>
 
 namespace {

@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLEditorRenderer.h"
 
-#include "renderer/renderers/opengl/GLEditorRenderer.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/assets/GLShader.h"
 #include "world/World.h"

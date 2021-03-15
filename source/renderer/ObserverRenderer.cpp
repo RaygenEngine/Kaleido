@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "ObserverRenderer.h"
 
-#include "renderer/ObserverRenderer.h"
 #include "system/Engine.h"
 #include "system/Input.h"
 #include "world/nodes/camera/CameraNode.h"

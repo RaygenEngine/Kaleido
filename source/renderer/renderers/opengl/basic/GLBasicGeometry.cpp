@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLBasicGeometry.h"
 
-#include "renderer/renderers/opengl/basic/GLBasicGeometry.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "asset/AssetManager.h"
 

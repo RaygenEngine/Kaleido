@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLTexture.h"
 
-#include "renderer/renderers/opengl/assets/GLTexture.h"
 #include "renderer/renderers/opengl/GLUtil.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"
 #include "asset/AssetManager.h"

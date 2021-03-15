@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLBasicSpotLight.h"
 
-#include "renderer/renderers/opengl/basic/GLBasicSpotLight.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"
 #include "asset/AssetManager.h"

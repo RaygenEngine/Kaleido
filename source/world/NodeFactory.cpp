@@ -1,21 +1,19 @@
-#include "pch/pch.h"
+#include "NodeFactory.h"
 
-#include "world/NodeFactory.h"
-#include "world/World.h"
+#include "asset/util/ParsingAux.h"
+#include "core/MathAux.h"
+#include "reflection/ReflectionTools.h"
 #include "world/nodes/camera/CameraNode.h"
 #include "world/nodes/camera/WindowCameraNode.h"
 #include "world/nodes/geometry/GeometryNode.h"
-#include "world/nodes/light/DirectionalLightNode.h"
-#include "world/nodes/light/SpotLightNode.h"
-#include "world/nodes/light/PunctualLightNode.h"
 #include "world/nodes/light/AmbientNode.h"
-#include "world/nodes/user/FreeformUserNode.h"
-#include "world/nodes/user/FlyingUserNode.h"
+#include "world/nodes/light/DirectionalLightNode.h"
+#include "world/nodes/light/PunctualLightNode.h"
+#include "world/nodes/light/SpotLightNode.h"
 #include "world/nodes/TransformNode.h"
-#include "world/nodes/vr/OVRNode.h"
-#include "asset/util/ParsingAux.h"
-#include "reflection/ReflectionTools.h"
-#include "core/MathAux.h"
+#include "world/nodes/user/FlyingUserNode.h"
+#include "world/nodes/user/FreeformUserNode.h"
+#include "world/World.h"
 
 #include <nlohmann/json.hpp>
 
@@ -25,7 +23,7 @@ using json = nlohmann::json;
 void NodeFactory::RegisterNodes()
 {
 	RegisterListToFactory<CameraNode, WindowCameraNode, GeometryNode, DirectionalLightNode, PunctualLightNode,
-		SpotLightNode, AmbientNode, FreeformUserNode, TransformNode, FlyingUserNode /*, OVRNode*/>();
+		SpotLightNode, AmbientNode, FreeformUserNode, TransformNode, FlyingUserNode>();
 }
 
 Node* NodeFactory::NewNodeFromType(const std::string& type)

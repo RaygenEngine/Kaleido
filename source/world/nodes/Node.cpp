@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "Node.h"
 
-#include "world/nodes/Node.h"
 #include "asset/util/ParsingAux.h"
 #include "asset/AssetManager.h"
 #include "reflection/ReflectionTools.h"

@@ -1,7 +1,6 @@
-#include "pch/pch.h"
+#include "PodIncludes.h"
 
-#include "asset/PodIncludes.h"
-
+#include "asset/loaders/BinaryLoader.h"
 #include "asset/loaders/CubemapLoader.h"
 #include "asset/loaders/DummyLoader.h"
 #include "asset/loaders/GltfFileLoader.h"
@@ -9,11 +8,10 @@
 #include "asset/loaders/GltfModelLoader.h"
 #include "asset/loaders/GltfTextureLoader.h"
 #include "asset/loaders/ImageLoader.h"
-#include "asset/loaders/ShaderLoader.h"
-#include "asset/loaders/TextLoader.h"
 #include "asset/loaders/JsonDocLoader.h"
 #include "asset/loaders/JsonGenericLoader.h"
-#include "asset/loaders/BinaryLoader.h"
+#include "asset/loaders/ShaderLoader.h"
+#include "asset/loaders/TextLoader.h"
 
 #include "asset/UriLibrary.h"
 #include "system/Logger.h"

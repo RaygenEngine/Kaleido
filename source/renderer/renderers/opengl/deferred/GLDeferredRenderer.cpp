@@ -1,8 +1,7 @@
-#include "pch/pch.h"
+#include "GLDeferredRenderer.h"
 
-#include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"
-#include "renderer/renderers/opengl/deferred/GLDeferredRenderer.h"
+#include "renderer/renderers/opengl/GLAssetManager.h"
 #include "world/World.h"
 #include "world/nodes/RootNode.h"
 #include "world/nodes/camera/CameraNode.h"

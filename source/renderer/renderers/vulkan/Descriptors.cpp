@@ -1,6 +1,4 @@
-#include "pch/pch.h"
 #include "Descriptors.h"
-
 
 #include "renderer/renderers/vulkan/DeviceWrapper.h"
 #include "renderer/renderers/vulkan/Swapchain.h"

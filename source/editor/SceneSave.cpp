@@ -1,16 +1,15 @@
-#include "pch/pch.h"
+#include "SceneSave.h"
 
-#include "editor/SceneSave.h"
-#include "system/Engine.h"
-#include "world/nodes/Node.h"
-#include "reflection/ReflectionTools.h"
-#include "world/World.h"
 #include "asset/AssetManager.h"
-#include "asset/util/ParsingAux.h"
 #include "asset/PodIncludes.h"
 #include "asset/UriLibrary.h"
-#include "world/nodes/RootNode.h"
+#include "asset/util/ParsingAux.h"
+#include "reflection/ReflectionTools.h"
+#include "system/Engine.h"
 #include "world/nodes/camera/EditorCameraNode.h"
+#include "world/nodes/Node.h"
+#include "world/nodes/RootNode.h"
+#include "world/World.h"
 
 #include <imgui.h>
 #include <glm/glm.hpp>
@@ -38,7 +37,7 @@ void SceneSave::Draw()
 	if (m_saveBrowser.HasSelected()) {
 		fs::path file = m_saveBrowser.GetSelected();
 		file.replace_extension(".json");
-		//m_lastFile = file.filename().string();
+		// m_lastFile = file.filename().string();
 		m_saveBrowser.ClearSelected();
 		SaveAs(Engine::GetWorld(), file.string());
 	}

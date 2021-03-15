@@ -1,6 +1,5 @@
-﻿#include "pch/pch.h"
+﻿#include "FreeformUserNode.h"
 
-#include "world/nodes/user/FreeformUserNode.h"
 #include "world/nodes/RootNode.h"
 #include "asset/util/ParsingAux.h"
 #include "system/Engine.h"

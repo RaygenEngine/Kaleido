@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "GLBasicDirectionalLight.h"
 
-#include "renderer/renderers/opengl/basic/GLBasicDirectionalLight.h"
 #include "renderer/renderers/opengl/GLAssetManager.h"
 #include "renderer/renderers/opengl/GLPreviewer.h"
 #include "asset/AssetManager.h"

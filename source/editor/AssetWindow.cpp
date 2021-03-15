@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "AssetWindow.h"
 
-#include "editor/AssetWindow.h"
 #include "system/Engine.h"
 #include "asset/AssetManager.h"
 #include "reflection/ReflectionTools.h"

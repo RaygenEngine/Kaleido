@@ -1,6 +1,4 @@
-#include "pch/pch.h"
-
-#include "renderer/renderers/vulkan/SwapChain.h"
+#include "SwapChain.h"
 
 #include "system/Engine.h"
 #include "platform/windows/Win32Window.h"

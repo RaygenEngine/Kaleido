@@ -1,6 +1,4 @@
-#include "pch/pch.h"
-
-#include "world/nodes/light/PunctualLightNode.h"
+#include "PunctualLightNode.h"
 
 void PunctualLightNode::CalculateWorldAABB()
 {

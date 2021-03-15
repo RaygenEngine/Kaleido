@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "WindowCameraNode.h"
 
-#include "world/nodes/camera/WindowCameraNode.h"
 #include "platform/windows/Win32Window.h"
 
 WindowCameraNode::WindowCameraNode()

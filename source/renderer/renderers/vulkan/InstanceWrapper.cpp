@@ -1,6 +1,4 @@
-#include "pch/pch.h"
-
-#include "renderer/renderers/vulkan/InstanceWrapper.h"
+#include "InstanceWrapper.h"
 
 #include "system/Logger.h"
 

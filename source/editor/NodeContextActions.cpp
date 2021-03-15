@@ -1,6 +1,5 @@
-#include "pch/pch.h"
-
 #include "NodeContextActions.h"
+
 #include "system/Engine.h"
 #include "editor/Editor.h"
 #include "world/nodes/Node.h"

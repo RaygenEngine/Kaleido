@@ -1,6 +1,4 @@
-#include "pch/pch.h"
-
-#include "system/Input.h"
+#include "Input.h"
 
 void Input::UpdateKeyPressed(Key key)
 {

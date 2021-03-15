@@ -1,6 +1,5 @@
-#include "pch/pch.h"
+#include "World.h"
 
-#include "world/World.h"
 #include "world/NodeFactory.h"
 #include "world/nodes/RootNode.h"
 #include "world/nodes/camera/CameraNode.h"
