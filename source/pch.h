@@ -25,3 +25,12 @@ namespace fs = std::filesystem;
 #include "core/CoreEnums.h"
 // meta
 #include "core/MetaTemplates.h"
+
+// TODO: decide where those go
+#include "KaleidoWin.h"
+
+#include <wrl.h>
+namespace WRL = Microsoft::WRL;
+
+#include <DirectXMath.h>
+namespace dx = DirectX;

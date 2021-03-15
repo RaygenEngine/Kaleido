@@ -189,6 +189,6 @@ GraphicsPipeline::GraphicsPipeline(DeviceWrapper& device, Swapchain* swapchain)
 		.setBasePipelineHandle({})
 		.setBasePipelineIndex(-1);
 
-	m_pipeline = device->createGraphicsPipelineUnique(nullptr, pipelineInfo);
+	m_pipeline = device->createGraphicsPipelineUnique(nullptr, pipelineInfo).value;
 }
 } // namespace vlkn

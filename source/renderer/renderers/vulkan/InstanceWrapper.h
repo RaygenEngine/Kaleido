@@ -1,9 +1,7 @@
 #pragma once
 
-
 #include "renderer/renderers/vulkan/PhysicalDeviceWrapper.h"
 
-#include <windows.h>
 #include <vulkan/vulkan.hpp>
 
 

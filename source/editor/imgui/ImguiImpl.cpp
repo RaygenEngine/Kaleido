@@ -3,6 +3,7 @@
 #include "system/Engine.h"
 #include "renderer/renderers/opengl/GLEditorRenderer.h"
 #include "renderer/renderers/vulkan/VkSampleRenderer.h"
+#include "renderer/renderers/contextual/d3d11/D3D11Graphics.h"
 #include "platform/windows/Win32Window.h"
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 
@@ -10,6 +11,7 @@
 #include <examples/imgui_impl_opengl3.h>
 #include <examples/imgui_impl_win32.h>
 #include <examples/imgui_impl_vulkan.h>
+#include <examples/imgui_impl_dx11.h>
 
 // forward declare this in our own file because its commented out in the imgui impl header.
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -81,12 +83,7 @@ void ImguiImpl::NewFrame()
 		UpdateWindow(currentHandle);
 		s_windowHandle = currentHandle;
 	}
-	if (dynamic_cast<ogl::GLEditorRenderer*>(Engine::GetRenderer())) {
-		ImGui_ImplOpenGL3_NewFrame();
-	}
-	else {
-		ImGui_ImplVulkan_NewFrame();
-	}
+
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 }
@@ -110,6 +107,7 @@ void ImguiImpl::InitOpenGL()
 
 void ImguiImpl::RenderOpenGL()
 {
+	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
@@ -162,67 +160,37 @@ void ImguiImpl::InitVulkan()
 
 	cmdBuffer.end();
 
-	r.m_device.GetTransferQueue()->submit(1, &end_info, {});
+	(void)r.m_device.GetTransferQueue()->submit(1, &end_info, {});
 	r.m_device->waitIdle();
 
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
-/*
-
-
-void VkRendererBase::ImGui_VulkanInit()
-{
-	// ImGui implementation of command buffers needs a ton of fixes. enable validation layers to find errors
-	// This is a temporary hacky implementation to allow for basic debugging while working on other parts of the project
-	QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_physicalDevice, m_surface);
-
-	ImGui_ImplVulkan_InitInfo init = {};
-	init.Instance = m_instance;
-	init.PhysicalDevice = m_physicalDevice;
-	init.Device = m_device;
-	init.QueueFamily = queueFamilyIndices.graphicsFamily.value();
-	init.Queue = m_graphicsQueue;
-	init.PipelineCache = VK_NULL_HANDLE;
-	init.DescriptorPool = m_descriptorPool;
-	init.ImageCount = m_swapChainImages.size();
-	init.MinImageCount = static_cast<uint32_t>(m_swapChainImages.size());
-	init.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init.CheckVkResultFn = nullptr;
-	ImGui_ImplVulkan_Init(&init, m_renderPass);
-
-
-	VkCommandBuffer command_buffer = m_commandBuffers[0];
-	vkCall(vkResetCommandPool(m_device, m_commandPool, 0));
-
-	VkCommandBufferBeginInfo begin_info = {};
-	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	vkCall(vkBeginCommandBuffer(command_buffer, &begin_info));
-
-	ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-
-	VkSubmitInfo end_info = {};
-	end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	end_info.commandBufferCount = 1;
-	end_info.pCommandBuffers = &command_buffer;
-	vkCall(vkEndCommandBuffer(command_buffer));
-	vkCall(vkQueueSubmit(m_graphicsQueue, 1, &end_info, VK_NULL_HANDLE));
-
-	vkCall(vkDeviceWaitIdle(m_device));
-	ImGui_ImplVulkan_DestroyFontUploadObjects();
-}
-*/
-
 void ImguiImpl::RenderVulkan(vk::CommandBuffer* drawCommandBuffer)
 {
-	auto data = ImGui::GetDrawData();
-	ImGui_ImplVulkan_RenderDrawData(data, *drawCommandBuffer);
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *drawCommandBuffer);
 }
 
 void ImguiImpl::CleanupVulkan()
 {
 	ImGui_ImplVulkan_Shutdown();
+}
+
+void ImguiImpl::InitD3D11(D3D11Graphics& gfx)
+{
+	ImGui_ImplDX11_Init(gfx.m_device.Get(), gfx.m_context.Get());
+}
+
+void ImguiImpl::RenderD3D11()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ImguiImpl::CleanupD3D11()
+{
+	ImGui_ImplDX11_Shutdown();
 }
 
 void ImguiImpl::UpdateWindow(HWND hWnd)
@@ -271,6 +239,7 @@ LRESULT ImguiImpl::WndProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 #include <imgui_draw.cpp>
 #include <imgui_widgets.cpp>
 #include <examples/imgui_impl_opengl3.cpp>
+#include <examples/imgui_impl_dx11.cpp>
 //#include <examples/imgui_impl_vulkan.cpp>
 #include <examples/imgui_impl_win32.cpp>
 #include <misc/cpp/imgui_stdlib.cpp>

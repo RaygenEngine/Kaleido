@@ -4,6 +4,7 @@
 #include "platform/windows/Win32Window.h"
 #include "renderer/renderers/opengl/deferred/GLDeferredRenderer.h"
 #include "renderer/renderers/opengl/forward/GLForwardRenderer.h"
+#include "renderer/renderers/contextual/TestRenderer.h"
 #include "renderer/renderers/vulkan/VkSampleRenderer.h"
 #include "system/Engine.h"
 #include "system/Input.h"
@@ -125,6 +126,7 @@ void AppBase::RegisterRenderers()
 
 	Engine::RegisterPrimaryRenderer<vlkn::VkSampleRenderer>();
 	Engine::RegisterPrimaryRenderer<ogl::GLForwardRenderer>();
+	Engine::RegisterPrimaryRenderer<TestRenderer>();
 
 	// Non primary renderers are skipped when cycling through renderers but can be enabled from the editor menu
 }

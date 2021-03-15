@@ -274,7 +274,7 @@ void VkSampleRenderer::DrawFrame()
 	vk::Semaphore signalSemaphores[] = { m_renderFinishedSemaphore.get() };
 	submitInfo.setSignalSemaphoreCount(1u).setPSignalSemaphores(signalSemaphores);
 
-	m_device.GetGraphicsQueue()->submit(1u, &submitInfo, {});
+	(void)m_device.GetGraphicsQueue()->submit(1u, &submitInfo, {});
 	vk::PresentInfoKHR presentInfo;
 	presentInfo.setWaitSemaphoreCount(1u).setPWaitSemaphores(signalSemaphores);
 

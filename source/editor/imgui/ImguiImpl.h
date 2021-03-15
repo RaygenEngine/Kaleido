@@ -1,9 +1,10 @@
 #pragma once
 
-#include <windows.h>
 namespace vk {
 class CommandBuffer;
 } // namespace vk
+
+class D3D11Graphics;
 
 // Provides an abstraction over the specific Win32 + ogl imgui implementation
 class ImguiImpl {
@@ -22,6 +23,10 @@ public:
 	static void InitVulkan();
 	static void RenderVulkan(vk::CommandBuffer* drawCommandBuffer);
 	static void CleanupVulkan();
+
+	static void InitD3D11(D3D11Graphics& gfx);
+	static void CleanupD3D11();
+	static void RenderD3D11();
 
 	static void UpdateWindow(HWND hWnd);
 

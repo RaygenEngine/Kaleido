@@ -74,10 +74,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set_property(TARGET Kaleido PROPERTY CXX_STANDARD 17)
 set_property(TARGET Kaleido PROPERTY CXX_STANDARD_REQUIRED ON)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX ${PROJECT_NAME} FILES ${HEADER_FILES} ${SOURCE_FILES})
-
-#definitions (WINDOWS)
-add_compile_definitions(NOMINMAX NODRAWTEXT NOOPENFILE)
 
 # multi-core compilation
 if(MSVC)

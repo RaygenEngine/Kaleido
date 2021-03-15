@@ -164,7 +164,7 @@ void DeviceWrapper::CopyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::D
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_transferCommandBuffer.get());
 
-	m_transferQueue->submit(1u, &submitInfo, {});
+	(void)m_transferQueue->submit(1u, &submitInfo, {});
 	// PERF:
 	// A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete,
 	// instead of executing one at a time. That may give the driver more opportunities to optimize.
@@ -228,7 +228,7 @@ void DeviceWrapper::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_transferCommandBuffer.get());
 
-	m_transferQueue->submit(1u, &submitInfo, {});
+	(void)m_transferQueue->submit(1u, &submitInfo, {});
 	// PERF:
 	// A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete,
 	// instead of executing one at a time. That may give the driver more opportunities to optimize.
@@ -314,7 +314,7 @@ void DeviceWrapper::TransitionImageLayout(
 	submitInfo.setCommandBufferCount(1u);
 	submitInfo.setPCommandBuffers(&m_graphicsCommandBuffer.get());
 
-	m_graphicsQueue->submit(1u, &submitInfo, {});
+	(void)m_graphicsQueue->submit(1u, &submitInfo, {});
 	m_graphicsQueue->waitIdle();
 }
 
