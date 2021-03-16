@@ -13,13 +13,6 @@
 D3D11GeometryGroup::D3D11GeometryGroup(D3D11Graphics& gfx, const GeometryGroup& gg, const MaterialPod& material)
 	: D3D11Renderable(gfx)
 {
-	glm::vec3 position{};
-	glm::vec3 normal{};
-	glm::vec3 tangent{};
-	glm::vec3 bitangent{};
-	glm::vec2 textCoord0{};
-	glm::vec2 textCoord1{};
-
 	if (!IsStaticInitialized()) {
 		// WIP:
 

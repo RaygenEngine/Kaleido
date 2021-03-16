@@ -1,6 +1,7 @@
 #include "D3D11Graphics.h"
 
 #include "renderer/renderers/contextual/d3d11/Error.h"
+#include "renderer/renderers/contextual/d3d11/renderable/D3D11GeometryGroup.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <d3d11.h>
@@ -103,6 +104,11 @@ D3D11Graphics::D3D11Graphics(HWND hWnd)
 	vp.TopLeftX = 0.0f;
 	vp.TopLeftY = 0.0f;
 	m_context->RSSetViewports(1u, &vp);
+}
+
+D3D11Graphics::~D3D11Graphics()
+{
+	D3D11Renderable<D3D11GeometryGroup>::staticBinds.clear();
 }
 
 void D3D11Graphics::EndFrame()

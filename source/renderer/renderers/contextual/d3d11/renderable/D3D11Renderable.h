@@ -32,6 +32,9 @@ private:
 
 template<class T>
 class D3D11Renderable : public D3D11RenderableBase {
+
+	friend class D3D11Graphics;
+
 protected:
 	D3D11Renderable(D3D11Graphics& gfx)
 		: D3D11RenderableBase(gfx){};

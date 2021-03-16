@@ -11,7 +11,7 @@ public:
 	D3D11Graphics(HWND hWnd);
 	D3D11Graphics(const D3D11Graphics&) = delete;
 	D3D11Graphics& operator=(const D3D11Graphics&) = delete;
-	~D3D11Graphics() = default;
+	~D3D11Graphics();
 	void EndFrame();
 	void DrawIndexed(UINT count);
 	void ClearBuffer(const glm::vec4& color);
