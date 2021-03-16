@@ -44,6 +44,7 @@ HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR 
 D3D11VertexShader::D3D11VertexShader(D3D11Graphics& gfx, const std::wstring& path)
 	: D3D11Bindable(gfx)
 {
+
 	// Prefer higher CS shader profile when possible as CS 5.0 provides better performance on 11-class hardware.
 	ABORT_IF_FAILED(CompileShader(path.c_str(), "main", "vs_4_0_level_9_1", &m_d3dBlob));
 	ABORT_IF_FAILED(GetDevice()->CreateVertexShader(
