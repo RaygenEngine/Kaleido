@@ -1,4 +1,4 @@
-#include "TestRenderer.h"
+#include "D3D11SampleRenderer.h"
 
 #include "system/Engine.h"
 #include "editor/imgui/ImguiImpl.h"
@@ -14,14 +14,16 @@
 
 #include <d3d11.h>
 
-TestRenderer::~TestRenderer()
+using namespace d3d11;
+
+D3D11SampleRenderer::~D3D11SampleRenderer()
 {
 	if (Engine::IsEditorEnabled()) {
 		ImguiImpl::CleanupD3D11();
 	}
 }
 
-void TestRenderer::Init(HWND assochWnd, HINSTANCE instance)
+void D3D11SampleRenderer::Init(HWND assochWnd, HINSTANCE instance)
 {
 	m_gfx = std::make_unique<D3D11Graphics>(assochWnd);
 	m_assetManager = std::make_unique<D3D11AssetManager>(*m_gfx);
@@ -42,7 +44,7 @@ void TestRenderer::Init(HWND assochWnd, HINSTANCE instance)
 	m_transform = std::make_unique<D3D11VertexConstantBuffer<glm::mat4>>(*m_gfx);
 }
 
-void TestRenderer::DrawFrame()
+void D3D11SampleRenderer::DrawFrame()
 {
 	auto cam = Engine::GetWorld()->GetActiveCamera();
 	CLOG_WARN(!cam, "Renderer failed to find camera.");

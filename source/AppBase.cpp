@@ -4,7 +4,7 @@
 #include "platform/windows/Win32Window.h"
 #include "renderer/renderers/opengl/deferred/GLDeferredRenderer.h"
 #include "renderer/renderers/opengl/forward/GLForwardRenderer.h"
-#include "renderer/renderers/contextual/TestRenderer.h"
+#include "renderer/renderers/contextual/D3D11SampleRenderer.h"
 #include "renderer/renderers/vulkan/VkSampleRenderer.h"
 #include "system/Engine.h"
 #include "system/Input.h"
@@ -123,10 +123,9 @@ void AppBase::RegisterRenderers()
 	// NOTE:
 	// Default behavior for an app is to start the first primary registered here.
 	Engine::RegisterPrimaryRenderer<ogl::GLDeferredRenderer>();
-
 	Engine::RegisterPrimaryRenderer<vlkn::VkSampleRenderer>();
 	Engine::RegisterPrimaryRenderer<ogl::GLForwardRenderer>();
-	Engine::RegisterPrimaryRenderer<TestRenderer>();
+	Engine::RegisterPrimaryRenderer<d3d11::D3D11SampleRenderer>();
 
 	// Non primary renderers are skipped when cycling through renderers but can be enabled from the editor menu
 }

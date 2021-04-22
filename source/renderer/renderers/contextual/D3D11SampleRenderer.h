@@ -16,9 +16,11 @@ struct SceneModel {
 	D3D11Model* model;
 };
 
-class TestRenderer : public Renderer {
+namespace d3d11 {
 
-	~TestRenderer() override;
+class D3D11SampleRenderer : public Renderer {
+
+	~D3D11SampleRenderer() override;
 
 	void Init(HWND assochWnd, HINSTANCE instance) override;
 
@@ -35,3 +37,5 @@ private:
 	// WIP: currently using only one transform for everything
 	std::unique_ptr<D3D11VertexConstantBuffer<glm::mat4>> m_transform;
 };
+
+} // namespace d3d11
